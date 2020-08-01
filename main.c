@@ -27,13 +27,13 @@ int main(int argc, char* argv[]){
                     fprintf(stdout, "*******Started working on file: %s*******", fileName);
 
                     reset_flags();
-                    passOne();/*here we can add a while loop to see if teh feof flag is on*/
+                    passOne(fp);/*here we can add a while loop to see if the feof flag is on*/
 
-                    if (err == 0) {
-                        rewind(fp);
-                        passTwo();
+                    if (err == 0) {/*if there are no errors, continue with second pass*/
+                        rewind(fp);/*starts the second pass from the start of the file*/
+                        passTwo(fp, argv[i]);
                     }
-                    else {
+                    else {/*first pass contains errors, stop processing the file*/
                         fprintf(stdout, "Errors found in file: %s, stoped working on file", fileName);
                     }
                     

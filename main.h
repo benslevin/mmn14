@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
+
 #define MAX_INPUT 81
 #define MAX_LABLE 32
 #define MAX_CHAR 8
