@@ -26,7 +26,7 @@ void ignore_line(char line) {
 	}
 }
 
-void errorExist() {
+void error_exist() {
 
 }
 

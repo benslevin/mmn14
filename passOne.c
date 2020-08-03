@@ -19,9 +19,9 @@ void passOne(FILE* fp)
 	{
 		error = EMPTY_ERROR; /* Reset the error variable at the begining of a new line*/
 		if (!ignore_line(line)) /* Ignore line if it's blank or ; */
-			read_line(line);
+			line_pass(line);
 		if (if_error()) {
-			errorExist = TRUE; /* There was at least one error through all the program */
+			error_exist = TRUE; /* There was at least one error through all the program */
 			write_error(line_number); /* Output the error */
 		}
 		line_number++;
