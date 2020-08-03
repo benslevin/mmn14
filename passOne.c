@@ -18,16 +18,13 @@ void passOne(FILE* fp)
 	while (fgets(line, CURRENT_LINE, fp) != NULL) /* Read lines until end of file */
 	{
 		error = EMPTY_ERROR; /* Reset the error variable at the begining of a new line*/
-		if (!ignore_line(line)) /* Ignore line if it's blank or ; */
+		if (!ignore_line(line)) /* Ignore line if it's blank*/
 			line_pass(line);
 		if (if_error()) {
 			error_exist = TRUE; /* There was at least one error through all the program */
 			write_error(line_number); /* Output the error */
 		}
 		line_number++;
-
-
-
 	}
 	/*not sure why we need the following, leaving it here ate the moment*/
 	/* When the first pass ends and the symbols table is complete and IC is evaluated,
@@ -38,6 +35,25 @@ void passOne(FILE* fp)
 
 
 }
+
+
+void  line_pass(char* line)
+{
+
+    /* Initializing variables for the type of the directive/command */
+    int directive_type = UNKNOWN_TYPE;
+    int command_type = UNKNOWN_COMMAND;
+    boolean label = FALSE; /* This variable will hold TRUE if a label exists in this line */
+    labelPtr label_node = NULL; /* This variable holds optional label in case we create it */
+    char current_sign[LINE_LENGTH]; /* This string will hold the current token if we analyze it */
+
+
+    /*Beginning to cross a line*/
+    line = skip_spaces(line);
+    if (end_of_line(line)) return;
+
+}
+
 
 
 
