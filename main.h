@@ -5,7 +5,7 @@
 #include <stdarg.h>
 
 #define MAX_INPUT 81
-#define MAX_LABLE 32
+#define MAX_LABEL 32
 #define MAX_CHAR 8
 #define DEFAULT_IC 100
 
