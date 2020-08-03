@@ -1,8 +1,11 @@
 #include "main.h"
 
 
-reset_falgs() {
+/*global variable in order to verify i f there was an error during the line reading*/
+boolean error_exist;
 
+reset_falgs() {
+    error_exist = FALSE;
 }
 
 
