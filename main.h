@@ -11,4 +11,4 @@
 
 char filename[MAX_INPUT];
 char line[MAX_INPUT];
-FILE* fd;
+FILE* fp;
