@@ -18,10 +18,11 @@ void ignore_line(char* line) {
 	while (*line == ';' || *line == '\0') {
 		i++;
 	}
-	if (line[i] == '\n') {
+	if (*line == '\n') {
 		return;
 	}
 }
+
 
 /*This function check is the 'error' flag was changed meaning that an error while reading the line accured*/
 int if_error()

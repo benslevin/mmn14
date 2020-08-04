@@ -5,8 +5,8 @@
 /*#define MACHINE_RAM 2000*/
 
 extern int ic, dc;
-extern int err;
-extern boolean was_error;
+extern int error;
+extern boolean error_exist;
 extern labelPtr symbols_table;
 extern extPtr ext_list;
 extern const char base24[24];
