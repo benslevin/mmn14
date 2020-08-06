@@ -207,6 +207,9 @@ void write_error(int line_number) {
         fprintf(stderr, "there was an error while trying to open the requested file.\n");
     }
     */
+
+	/*INVALID_SYNTAX*/ /*in case the line does not starts with alpha or .*/
+	/*INVALID_LABEL_LINE*/ /*in case there is only a label in a line*/
 }
 
 /* This function skips spaces of a string*/
@@ -228,4 +231,36 @@ int end_of_line(char* line)
 
 int convert_to_HEX() {
 
+}
+
+
+
+void copy_sign(char* dest, char* line)
+{
+
+}
+
+
+
+/* This function checks whether a given token is a label or not (by syntax).
+ * The parameter colon states whether the function should look for a ':' or not
+ * when parsing parameter (to make it easier for both kinds of tokens passed to this function.
+ */
+boolean is_label(char* token, int colon)
+{
+   
+}
+
+
+char* next_sign(char* ch)
+{
+
+}
+
+
+
+int if_guidance(char* token)
+{
+	/*if (token == NULL || *token != '.') return NOT_FOUND;
+	return find_index(token, directives, NUM_DIRECTIVES);*/
 }
