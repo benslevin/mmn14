@@ -57,6 +57,11 @@ int end_of_line(char* line)
 }
 
 
+int convert_to_HEX() {
+
+}
+
+
 
 void copy_sign(char* dest, char* line)
 {
