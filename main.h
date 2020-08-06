@@ -5,7 +5,7 @@
 #include <stdarg.h>
 
 #define MAX_INPUT 81
-#define MAX_LABEL 32
+#define MAX_LABEL 32 /*maximum chars per label*/
 #define MAX_CHAR 8
 #define DEFAULT_IC 100
 #define LINE_LENGTH 81 /* maximum chars for each line */
@@ -26,3 +26,8 @@ FILE* fd;
 enum errors {
     SYNTAX_ERR = 1,
 };
+
+
+
+/* To identify a label */
+enum { NO_COLON, COLON };
