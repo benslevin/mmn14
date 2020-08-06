@@ -52,3 +52,8 @@ int end_of_line(char* line)
 	if (line == NULL || *line == '\0' || *line == '\n')
 		return;
 }
+
+
+int convert_to_HEX() {
+
+}

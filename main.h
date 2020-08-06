@@ -8,7 +8,6 @@
 #define MAX_LABEL 32
 #define MAX_CHAR 8
 #define DEFAULT_IC 100
-#define LINE_LENGTH 81 /* maximum chars for each line */
 #define EMPTY_ERROR 0
 
 /* Directives types */
@@ -19,7 +18,6 @@ enum commands { MOV, CMP, ADD, SUB, LEA, CLR, NOT, INC, DEC, JMP, JSR, BNE, RED,
 
 char filename[MAX_INPUT];
 char line[MAX_INPUT];
-FILE* fd;
 
 
 
