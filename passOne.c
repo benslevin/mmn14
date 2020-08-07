@@ -76,7 +76,7 @@ void  line_pass_one(char* line)
 
 	if (if_error())/*in case the first pass for label search returns an error*/
 
-		if ((guidance_type = if_guidance(current_sign)) != NOT_FOUND) /*in case the sign is a guidance*/
+		if ((guidance_type = find_guidance(current_sign)) != NOT_FOUND) /*in case the sign is a guidance*/
 		{
 			if (label != 0)
 			{
@@ -152,9 +152,7 @@ int handle_data_guidance(char* line)
 {
 	char sign[NUM]; /* Holds tokens */
 
-	/* These booleans mark if there was a number or a comma before current token,
-	 * so that if there wasn't a number, then a number will be required and
-	 * if there was a number but not a comma, a comma will be required */
+	/*Flags to verify that there is a seperation between the diffrent numbers using a comma*/
 	boolean number = FALSE;
 	boolean comma = FALSE;
 
