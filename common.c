@@ -140,7 +140,7 @@ boolean is_label(char* sign, int colon)
 
 	if (!has_digits) /* It can't be a command */
 	{
-		if (find_command(sign) != NOT_FOUND) {
+		if (find_command(sign) != NO_MATCH) {
 			if (colon) {
 				err = LABEL_CANT_BE_COMMAND; /* Label can't have the same name as a command */
 			}
@@ -190,18 +190,21 @@ int find_index(char* sign, const char* arr[], int n)
 }
 
 /* Check if a token matches a register name */
-boolean is_guidence(char* token)
+boolean is_guidence(char* sign)
 {
 	/* A register must have 2 characters, the first is 'r' and the second is a number between 0-7 */
-	return strlen(token) == REGISTER_LENGTH && token[0] == 'r' &&
-		token[1] >= '0' &&
-		token[1] <= '7';
+	if (strlen(sign) == REG_LEN && sign[0] == 'r' && sign[1] >= '0' && sign[1] <= '7') {
+		return TRUE;
+	}
+	else return FALSE;
 }
 
 /* Check if a token matches a directive name */
 int find_guidence(char* token)
 {
-	if (token == NULL || *token != '.') return NOT_FOUND;
+	if (token == NULL || *token != '.') {
+		return NO_MATCH;
+	}
 	return find_index(token, directives, NUM_DIRECTIVES);
 }
 
@@ -210,19 +213,12 @@ int find_command(char* token)
 {
 	int token_len = strlen(token);
 	if (token_len > MAX_COMMAND_LENGTH || token_len < MIN_COMMAND_LENGTH)
-		return NOT_FOUND;
+		return NO_MATCH;
 	return find_index(token, commands, NUM_COMMANDS);
 }
 /*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
 
-
-
-int if_guidance(char* token)
-{
-	/*if (token == NULL || *token != '.') return NOT_FOUND;
-	return find_index(token, directives, NUM_DIRECTIVES);*/
-}
 
 /*********functions for word**********/
 
