@@ -186,7 +186,7 @@ int find_index(char* sign, const char* arr[], int n)
 }
 
 /* Check if a token matches a register name */
-boolean is_guidence(char* sign)
+boolean is_register(char* sign)
 {
 	/* A register must have 2 characters, the first is 'r' and the second is a number between 0-7 */
 	if (strlen(sign) == REG_LEN && sign[0] == 'r' && sign[1] >= '0' && sign[1] <= '7') {
@@ -204,17 +204,15 @@ int find_guidence(char* token)
 	return find_index(token, directives, NUM_DIRECTIVES);
 }
 
-/* Check if a token matches a command name */
-int find_command(char* token)
+/* Check if a sign matches a command name */
+int find_command(char* sign)
 {
-	int token_len = strlen(token);
-	if (token_len > MAX_COMMAND_LENGTH || token_len < MIN_COMMAND_LENGTH)
+	int sign_len = strlen(sign);
+	if (sign_len > 4 || sign_len < 3)/*a command is between 3 and 4 chars*/
 		return NO_MATCH;
-	return find_index(token, commands, NUM_COMMANDS);
+	return find_index(sign, commands, 16);/*we have a total of 16 commands*/
 }
 /*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
-
-
 
 
 char* next_list_sign(char* dest, char* line)

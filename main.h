@@ -24,10 +24,16 @@ char line[MAX_INPUT];
 
 
 /* Directives types */
-enum guidance { DATA, STRING, STRUCT, ENTRY, EXTERN, UNKNOWN_TYPE };
+enum guidance { DATA, STRING, ENTRY, EXTERN, UNKNOWN_TYPE };
 
 /* Enum of commands ordered by their opcode */
 enum commands { MOV, CMP, ADD, SUB, LEA, CLR, NOT, INC, DEC, JMP, JSR, BNE, RED, PRN, RTS, STOP, UNKNOWN_COMMAND };
+
+/**/
+enum filetype { FILE_INPUT, FILE_OBJECT, FILE_ENTRY, FILE_EXTERN };
+
+/* A/R/E modes ordered by their numerical value */
+enum ARE { ABSOLUTE, EXTERNAL, RELOCATABLE };
 
 enum errors {
     SYNTAX_ERR = 1,

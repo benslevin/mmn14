@@ -147,11 +147,11 @@ int delete_label(labelPtr* lptr, char* name)
 
 }
 
-/*
+
 void print_labels(labelPtr l) {
 	while (l) {
 		printf("\nname: %s, address: %d, external: %d", l->name, l->address, l->external);
-		if (h->external == 0)
+		if (l->external == 0)
 			printf(", is in action statement: %d -> ", l->inActionStatement);
 		else
 			printf(" -> ");
@@ -159,4 +159,4 @@ void print_labels(labelPtr l) {
 	}
 	printf("*");
 }
-*/
+

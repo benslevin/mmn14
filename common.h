@@ -1,1 +1,1 @@
-
+/*here we declare all the fuctions in common.c*/

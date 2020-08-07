@@ -1,6 +1,19 @@
 #include "main.h"
 
 
+
+
+
+
+const char* commands[] = {
+        "mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp", "bne",
+        "jsr", "red", "prn", "rts", "stop"
+};
+
+const char* guidence[] = {
+        ".data", ".string", ".entry", ".extern"
+};
+
 void reset_falgs() {
     symbols_table = NULL;
     ext_list = NULL;

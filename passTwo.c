@@ -1,6 +1,6 @@
 #include "external_vars.h"
 #include "common.h"
-
+#include "struct.h"
 
 void passTwo(FILE *fp, char *filename) {
 	char line[MAX_INPUT];/*read each line*/
@@ -75,7 +75,7 @@ void creat_output_files(char* name) {
 		creat_extern_file(file);
 	}
 
-	return NO_ERRORS;/*check if its declared*/
+	return EMPTY_ERROR; /*check if its declared*/
 }
 
 FILE* open_file(char* filename, int type) {
@@ -94,3 +94,36 @@ void creat_external_file() {
 
 }
 
+
+void does_operand_exists(int ope, boolean* is_source, boolean* is_destination) {
+	
+	switch (ope) {
+		case MOV:
+		case CMP:
+		case ADD:
+		case SUB:
+		case LEA:
+			is_source = TRUE;
+			is_destination = TRUE;
+			break;
+
+		case CLR:
+		case NOT:
+		case INC:
+		case DEC:
+		case JMP:
+		case JSR:
+			is_source = FALSE;
+			is_destination = TRUE;
+			break;
+
+		case BNE:
+		case RED:
+		case PRN:
+		case RTS:
+		case STOP:
+			is_source = FALSE;
+			is_destination = FALSE;
+	}
+
+}
