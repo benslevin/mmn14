@@ -11,6 +11,7 @@
 #define EMPTY_ERROR 0
 #define ERROR 1
 #define NO_MATCH -1 /*no match for comparison*/
+#define NUM 50
 
 /****************************Limits*******************************/
 #define REG_LEN 2
