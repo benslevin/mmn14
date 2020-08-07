@@ -196,12 +196,12 @@ boolean is_register(char* sign)
 }
 
 /* Check if a token matches a directive name */
-int find_guidence(char* token)
+int find_guidence(char* sign)
 {
-	if (token == NULL || *token != '.') {
+	if (sign == NULL || *sign != '.') {
 		return NO_MATCH;
-	}
-	return find_index(token, directives, NUM_DIRECTIVES);
+	}/*we have 4 guidence commands, check index number in enum*/
+	return find_index(sign, guidence, 4);
 }
 
 /* Check if a sign matches a command name */
