@@ -68,7 +68,7 @@ void  line_pass_one(char* line)
 		line = next_sign(line);/*Getting the next sign*/
 		if (end_of_line(line))
 		{
-			error = INVALID_LABEL_LINE;
+			error = INVALID_LABEL_LINE;/* only label exists in line*/
 			return;
 		}
 		copy_sign(current_sign, line);/*after we get the next the next word or symbol we continue with the proccess*/
