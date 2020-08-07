@@ -76,7 +76,7 @@ void  line_pass_one(char* line)
 
 	if (if_error())/*in case the first pass for label search returns an error*/
 
-		if ((guidance_type = find_guidance(current_sign)) != NOT_FOUND) /*in case the sign is a guidance*/
+		if ((guidance_type = find_guidance(current_sign)) != NO_MATCH) /*in case the sign is a guidance*/
 		{
 			if (label != 0)
 			{
@@ -85,20 +85,23 @@ void  line_pass_one(char* line)
 					label = FALSE;
 				}
 				else
+					/* Setting fields accordingly in label */
+					label_node->symbol_type = "data";
 					label_node->address = dc; /* Address of data label is dc */
+				    
 			}
 			line = next_sign(line);
 			handle_guidance(guidance_type, line);
-
 		}
 
-		else if ((command_type = if_command(current_sign)) != NOT_FOUND) /* detecting command type (if it's a command) */
+		else if ((command_type = find_command(current_sign)) != NO_MATCH) /* in case the sign is a command */
 		{
 			if (label != 0)
 			{
 				/* Setting fields accordingly in label */
-				label_node->dataStorageStatment = TRUE;
-				label_node->address = ic;
+				//label_node->dataStorageStatment = TRUE;
+				label_node->symbol_type = "code";
+				label_node->address = ic;/* Address of data label is ic */
 			}
 			line = next_sign(line);
 			handle_command(command_type, line);
@@ -236,10 +239,36 @@ int handle_string_guidance(char* line)
 	return NO_ERROR;
 }
 
+/* This function handles an .extern guidance */
+int handle_extern_guidance(char* line)
+{
+	char sign[MAX_LABEL]; /* This will hold the required label */
 
-//----------------------------------------------
-//
-//handle_extern_guidance
+	copy_sign(sign, line); /* Getting the next sign */
+	if (end_of_line(sign)) /* If the sign is empty, then there's no label */
+	{
+		error = EXTERN_NO_LABEL;
+		return ERROR;
+	}
+	if (!is_label(sign, FALSE)) /* The sign should be a label (without a colon) */
+	{
+		error = EXTERN_INVALID_LABEL;
+		return ERROR;
+	}
+
+	line = next_sign(line);
+	if (!end_of_line(line))
+	{
+		error = EXTERN_TOO_MANY_OPERANDS;
+		return ERROR;
+	}
+
+	/* Trying to add the label to the symbols table */
+	if (add_label(&symbols_table, sign, EXTERNAL_DEFAULT_ADDRESS, TRUE) == NULL)
+		return ERROR;
+	return if_error(); /* Error code might be 1 if there was an error in is_label() */
+}
+
 //-----------------------------------------------------------------------------------
 
 int handle_command(int type, char* line)
@@ -251,25 +280,25 @@ int handle_command(int type, char* line)
 	char first_op[20], second_op[20]; /* These strings will hold the operands */
 
 	/* Trying to parse 2 operands */
-	line = next_list_token(first_op, line);
+	line = next_list_sign(first_op, line);
 	if (!end_of_line(first_op)) /* If first operand is not empty */
 	{
 		is_first = TRUE; /* First operand exists! */
-		line = next_list_token(second_op, line);
+		line = next_list_sign(second_op, line);
 		if (!end_of_line(second_op)) /* If second operand (should hold temporarily a comma) is not empty */
 		{
 			if (second_op[0] != ',') /* A comma must separate two operands of a command */
 			{
-				err = COMMAND_UNEXPECTED_CHAR;
+				error = COMMAND_UNEXPECTED_CHAR;
 				return ERROR;
 			}
 
 			else
 			{
-				line = next_list_token(second_op, line);
+				line = next_list_sign(second_op, line);
 				if (end_of_line(second_op)) /* If second operand is not empty */
 				{
-					err = COMMAND_UNEXPECTED_CHAR;
+					error = COMMAND_UNEXPECTED_CHAR;
 					return ERROR;
 				}
 				is_second = TRUE; /* Second operand exists! */
@@ -279,13 +308,13 @@ int handle_command(int type, char* line)
 	line = skip_spaces(line);
 	if (!end_of_line(line)) /* If the line continues after two operands */
 	{
-		err = COMMAND_TOO_MANY_OPERANDS;
+		error = COMMAND_TOO_MANY_OPERANDS;
 		return ERROR;
 	}
 
-	if (is_first)
+	if (is_first == TRUE)
 		first_method = detect_method(first_op); /* Detect addressing method of first operand */
-	if (is_second)
+	if (is_second == TRUE)
 		second_method = detect_method(second_op); /* Detect addressing method of second operand */
 
 	if (!is_error()) /* If there was no error while trying to parse addressing methods */
@@ -315,6 +344,7 @@ int handle_command(int type, char* line)
 	return NO_ERROR;
 }
 
+
 void write_num_to_data(int num)
 {
 	data[dc++] = (unsigned int)num;
@@ -322,3 +352,10 @@ void write_num_to_data(int num)
 
 
 
+
+
+/* This function tries to find the addressing method of a given operand and returns -1 if it was not found */
+int detect_method(char* operand)
+{
+
+}

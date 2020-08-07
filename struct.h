@@ -11,8 +11,9 @@ typedef struct structLabels* labelPtr;
 typedef struct structLabels {
 	char name[MAX_LABEL];/* The name of the label */
 	unsigned int address;/* The address of the label */
+	char symbol_type[MAX_LABEL];
 	boolean external;/* A boolean type variable to store if the label is extern or not */
-	boolean dataStorageStatment;/* A boolean type varialbe to store if the label is in an action statement or not */
+	/*boolean dataStorageStatment;/* A boolean type varialbe to store if the label is in an action statement or not */
 	boolean entry;/* A boolean type varialbe to store if the label is entry or not */
 	labelPtr next;/* A pointer to the next label in the list */
 } Labels;
