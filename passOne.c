@@ -76,85 +76,251 @@ void  line_pass_one(char* line)
 
 	if (if_error())/*in case the first pass for label search returns an error*/
 
-	if ((guidance_type = if_guidance(current_sign)) != NOT_FOUND) /*in case the sign is a guidance*/
-	{
-		if (label != 0)
+		if ((guidance_type = if_guidance(current_sign)) != NOT_FOUND) /*in case the sign is a guidance*/
 		{
-			if (guidance_type == ENTRY || guidance_type == EXTERN) {
-				delete_label(&symbols_table, label_node->name);
-				label = FALSE;
+			if (label != 0)
+			{
+				if (guidance_type == ENTRY || guidance_type == EXTERN) {
+					delete_label(&symbols_table, label_node->name);
+					label = FALSE;
+				}
+				else
+					label_node->address = dc; /* Address of data label is dc */
 			}
+			line = next_sign(line);
+			handle_guidance(guidance_type, line);
 
 		}
 
-	}
-
-	if ((dir_type = find_directive(current_token)) != NOT_FOUND) /* detecting directive type (if it's a directive) */
-	{
-		if (label)
+		else if ((command_type = if_command(current_sign)) != NOT_FOUND) /* detecting command type (if it's a command) */
 		{
-			if (dir_type == EXTERN || dir_type == ENTRY) { /* we need to ignore creation of label before .entry/.extern */
-				delete_label(&symbols_table, label_node->name);
-				label = FALSE;
+			if (label != 0)
+			{
+				/* Setting fields accordingly in label */
+				label_node->dataStorageStatment = TRUE;
+				label_node->address = ic;
 			}
-			else
-				label_node->address = dc; /* Address of data label is dc */
+			line = next_sign(line);
+			handle_command(command_type, line);
 		}
-		line = next_token(line);
-		handle_directive(dir_type, line);
-	}
-
-
-
-
+		else
+			error = MISSING_SYNTAX;/*In case a line does not have a command or a guidance */
 }
 
 
 
-/* This function will analyze a given line from the file and will extract the information needed by the Maman's rules */
-void read_line(char* line)
+
+/* This function handles all kinds of guidance (.data, .string, .entry, .extern)
+ * and sends them accordingly to the suitable function for analyzing them
+ * */
+int handle_guidance(int guidance_type, char* line)
 {
-
-
-	if ((dir_type = find_directive(current_token)) != NOT_FOUND) /* detecting directive type (if it's a directive) */
+	if (line == NULL || end_of_line(line)) /*at least one parameter must fllow a guidance*/
 	{
-		if (label)
+		error = NO_PARAMETER_AVAILABLE;
+		return ERROR;
+	}
+
+	switch (type)
+	{
+	case DATA:
+		/* Handle .data  and insert values separated by comma to the memory */
+		return handle_data_guidance(line);
+
+	case STRING:
+		/* Handle .string directive and insert all characters (including a '\0') to memory */
+		return handle_string_guidance(line);
+
+	case ENTRY:
+		/* Only check for syntax of entry (should not contain more than one parameter) */
+		if (!end_of_line(next_sign(line))) /* If there's a next token (after the first one) */
 		{
-			if (dir_type == EXTERN || dir_type == ENTRY) { /* we need to ignore creation of label before .entry/.extern */
-				delete_label(&symbols_table, label_node->name);
-				label = FALSE;
-			}
-			else
-				label_node->address = dc; /* Address of data label is dc */
+			error = GUIDANCE_INVALID_NUM_PARAMS;
+			return ERROR;
 		}
-		line = next_token(line);
-		handle_directive(dir_type, line);
-	}
+		break;
 
-	else if ((command_type = find_command(current_token)) != NOT_FOUND) /* detecting command type (if it's a command) */
-	{
-		if (label)
-		{
-			/* Setting fields accordingly in label */
-			label_node->inActionStatement = TRUE;
-			label_node->address = ic;
-		}
-		line = next_token(line);
-		handle_command(command_type, line);
+	case EXTERN:
+		/* Handle .extern directive */
+		return handle_extern_guidance(line);
 	}
-
-	else
-	{
-		err = COMMAND_NOT_FOUND; /* a line must have a directive/command */
-	}
-
+	return NO_ERROR;
 }
 
 
+int handle_data_guidance(char* line)
+{
+	char sign[NUM]; /* Holds tokens */
+
+	/* These booleans mark if there was a number or a comma before current token,
+	 * so that if there wasn't a number, then a number will be required and
+	 * if there was a number but not a comma, a comma will be required */
+	boolean number = FALSE;
+	boolean comma = FALSE;
+
+	while (!end_of_line(line))
+	{
+		line = next_list_sign(sign, line); /* Getting current sign */
+
+		if (strlen(sign) > 0) /* Not an empty sign */
+		{
+			if (number == FALSE) { /* if there wasn't a number before */
+				if (is_number(sign) == FALSE) { /* then the sign must be a number */
+					error = DATA_EXPECTED_NUM;
+					return ERROR;
+				}
+
+				else {
+					number = TRUE; /* A valid number was inputted */
+					comma = FALSE; /* Resetting comma (now it is needed) */
+					write_num_to_data(atoi(sign)); /* encoding number to data */
+				}
+			}
+
+			else if (*sign != ',') /* If there was a number, now a comma is needed */
+			{
+				error = DATA_EXPECTED_COMMA_AFTER_NUM;
+				return ERROR;
+			}
+
+			else /* If there was a comma, it should be only once (comma should be false) */
+			{
+				if (comma == TRUE) {
+					error = DATA_COMMAS_IN_A_ROW;
+					return ERROR;
+				}
+				else {
+					comma = TRUE;
+					number = FALSE;
+				}
+			}
+
+		}
+	}
+	if (comma == TRUE)
+	{
+		error = DATA_UNEXPECTED_COMMA;
+		return ERROR;
+	}
+	return NO_ERROR;
+}
 
 
+/* This function handles a .string directive by analyzing it and encoding it to data */
+int handle_string_guidance(char* line)
+{
+	char sign[MAX_INPUT];
+
+	line = next_sign_string(sign, line);
+	if (!end_of_line(sign) && is_string(sign)) { /* If token exists and it's a valid string */
+		line = skip_spaces(line);
+		if (end_of_line(line)) /* If there's no additional sign */
+		{
+			/* "Cutting" quotation marks and encoding it to data */
+			token[strlen(sign) - 1] = '\0';
+			write_string_to_data(sign + 1);
+		}
+
+		else /* There's another sign */
+		{
+			error = STRING_TOO_MANY_OPERANDS;
+			return ERROR;
+		}
+
+	}
+
+	else /* Invalid string */
+	{
+		error = STRING_OPERAND_NOT_VALID;
+		return ERROR;
+	}
+
+	return NO_ERROR;
+}
 
 
+//----------------------------------------------
+//
+//handle_extern_guidance
+//-----------------------------------------------------------------------------------
+
+int handle_command(int type, char* line)
+{
+	boolean is_first = FALSE;
+	boolean is_second = FALSE; /* These booleans will tell which of the operands were
+													 received (not by source/dest, but by order) */
+	int first_method, second_method; /* These will hold the addressing methods of the operands */
+	char first_op[20], second_op[20]; /* These strings will hold the operands */
+
+	/* Trying to parse 2 operands */
+	line = next_list_token(first_op, line);
+	if (!end_of_line(first_op)) /* If first operand is not empty */
+	{
+		is_first = TRUE; /* First operand exists! */
+		line = next_list_token(second_op, line);
+		if (!end_of_line(second_op)) /* If second operand (should hold temporarily a comma) is not empty */
+		{
+			if (second_op[0] != ',') /* A comma must separate two operands of a command */
+			{
+				err = COMMAND_UNEXPECTED_CHAR;
+				return ERROR;
+			}
+
+			else
+			{
+				line = next_list_token(second_op, line);
+				if (end_of_line(second_op)) /* If second operand is not empty */
+				{
+					err = COMMAND_UNEXPECTED_CHAR;
+					return ERROR;
+				}
+				is_second = TRUE; /* Second operand exists! */
+			}
+		}
+	}
+	line = skip_spaces(line);
+	if (!end_of_line(line)) /* If the line continues after two operands */
+	{
+		err = COMMAND_TOO_MANY_OPERANDS;
+		return ERROR;
+	}
+
+	if (is_first)
+		first_method = detect_method(first_op); /* Detect addressing method of first operand */
+	if (is_second)
+		second_method = detect_method(second_op); /* Detect addressing method of second operand */
+
+	if (!is_error()) /* If there was no error while trying to parse addressing methods */
+	{
+		if (command_accept_num_operands(type, is_first, is_second)) /* If number of operands is valid for this specific command */
+		{
+			if (command_accept_methods(type, first_method, second_method)) /* If addressing methods are valid for this specific command */
+			{
+				/* encode first word of the command to memory and increase ic by the number of additional words */
+				encode_to_instructions(build_first_word(type, is_first, is_second, first_method, second_method));
+				ic += calculate_command_num_additional_words(is_first, is_second, first_method, second_method);
+			}
+
+			else
+			{
+				err = COMMAND_INVALID_OPERANDS_METHODS;
+				return ERROR;
+			}
+		}
+		else
+		{
+			err = COMMAND_INVALID_NUMBER_OF_OPERANDS;
+			return ERROR;
+		}
+	}
+
+	return NO_ERROR;
+}
+
+void write_num_to_data(int num)
+{
+	data[dc++] = (unsigned int)num;
+}
 
 
 

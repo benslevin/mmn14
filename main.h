@@ -9,6 +9,7 @@
 #define MAX_CHAR 8
 #define DEFAULT_IC 100
 #define EMPTY_ERROR 0
+#define NUM 50
 
 /* Directives types */
 enum guidance { DATA, STRING, STRUCT, ENTRY, EXTERN, UNKNOWN_TYPE };

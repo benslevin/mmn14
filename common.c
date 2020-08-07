@@ -87,8 +87,60 @@ char* next_sign(char* ch)
 
 
 
-int if_guidance(char* token)
+int if_guidance(char* line)
 {
 	/*if (token == NULL || *token != '.') return NOT_FOUND;
 	return find_index(token, directives, NUM_DIRECTIVES);*/
 }
+
+
+int if_command(char* line)
+{
+	/*if (token == NULL || *token != '.') return NOT_FOUND;
+	return find_index(token, directives, NUM_DIRECTIVES);*/
+}
+
+
+
+char* next_list_sign(char* dest, char* line)
+{
+
+}
+
+
+boolean is_number(char* seq)
+{
+
+}
+
+
+/* This function copies supposedly next string into dest array and returning a pointer to the
+ * first character after it
+ */
+char* next_sign_string(char* dest, char* line)
+{
+	char temp[LINE_LENGTH];
+	line = next_list_token(dest, line);
+	if (*dest != '"') return line;
+	while (!end_of_line(line) && dest[strlen(dest) - 1] != '"')
+	{
+		line = next_list_token(temp, line);
+		if (line) strcat(dest, temp);
+	}
+	return line;
+}
+
+
+boolean is_string(char* string)
+{
+
+}
+
+
+
+
+/* This function encodes a given string to data */
+void write_string_to_data(char* str)
+{
+
+
