@@ -1,10 +1,12 @@
 #include "main.h"
 
 
-/*global variable in order to verify i f there was an error during the line reading*/
-boolean error_exist;
+void reset_falgs() {
+    symbols_table = NULL;
+    ext_list = NULL;
 
-reset_falgs() {
+    entry_exists = FALSE;
+    extern_exists = FALSE;
     error_exist = FALSE;
 }
 
