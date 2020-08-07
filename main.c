@@ -4,15 +4,12 @@
 
 
 
+/*List of avaiable commands*/
+const char* commands[] = { "mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp", "bne","jsr", "red", "prn", "rts", "stop"};
 
-const char* commands[] = {
-        "mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp", "bne",
-        "jsr", "red", "prn", "rts", "stop"
-};
+/*List of avaiable guidance*/
+const char* guidence[] = {".data", ".string", ".entry", ".extern"};
 
-const char* guidence[] = {
-        ".data", ".string", ".entry", ".extern"
-};
 
 void reset_falgs() {
     symbols_table = NULL;

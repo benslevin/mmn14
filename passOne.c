@@ -269,23 +269,22 @@ int handle_extern_guidance(char* line)
 	return if_error(); /* Error code might be 1 if there was an error in is_label() */
 }
 
-//-----------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------//
 
 int handle_command(int type, char* line)
 {
 	boolean is_first = FALSE;
-	boolean is_second = FALSE; /* These booleans will tell which of the operands were
-													 received (not by source/dest, but by order) */
+	boolean is_second = FALSE; /* These booleans will tell which of the operands were received (not by source/dest, but by order) */
 	int first_method, second_method; /* These will hold the addressing methods of the operands */
-	char first_op[20], second_op[20]; /* These strings will hold the operands */
+	char first_operand[20], second_operand[20]; /* These strings will hold the operands */
 
 	/* Trying to parse 2 operands */
-	line = next_list_sign(first_op, line);
-	if (!end_of_line(first_op)) /* If first operand is not empty */
+	line = next_list_sign(first_operand, line);
+	if (!end_of_line(first_operand)) /* If first operand is not empty */
 	{
 		is_first = TRUE; /* First operand exists! */
-		line = next_list_sign(second_op, line);
-		if (!end_of_line(second_op)) /* If second operand (should hold temporarily a comma) is not empty */
+		line = next_list_sign(second_operand, line);
+		if (!end_of_line(second_operand)) /* If second operand (should hold temporarily a comma) is not empty */
 		{
 			if (second_op[0] != ',') /* A comma must separate two operands of a command */
 			{
@@ -295,8 +294,8 @@ int handle_command(int type, char* line)
 
 			else
 			{
-				line = next_list_sign(second_op, line);
-				if (end_of_line(second_op)) /* If second operand is not empty */
+				line = next_list_sign(second_operand, line);
+				if (end_of_line(second_operand)) /* If second operand is not empty */
 				{
 					error = COMMAND_UNEXPECTED_CHAR;
 					return ERROR;
@@ -313,9 +312,9 @@ int handle_command(int type, char* line)
 	}
 
 	if (is_first == TRUE)
-		first_method = detect_method(first_op); /* Detect addressing method of first operand */
+		first_method = detect_method(first_operand); /* Detect addressing method of first operand */
 	if (is_second == TRUE)
-		second_method = detect_method(second_op); /* Detect addressing method of second operand */
+		second_method = detect_method(second_operand); /* Detect addressing method of second operand */
 
 	if (!is_error()) /* If there was no error while trying to parse addressing methods */
 	{
@@ -325,18 +324,18 @@ int handle_command(int type, char* line)
 			{
 				/* encode first word of the command to memory and increase ic by the number of additional words */
 				encode_to_instructions(build_first_word(type, is_first, is_second, first_method, second_method));
-				ic += calculate_command_num_additional_words(is_first, is_second, first_method, second_method);
+				ic += calculate_command_num_additional_words(is_first, is_second, first_method, second_method);//////////////////////////////////////////////need to edjust the method
 			}
 
 			else
 			{
-				err = COMMAND_INVALID_OPERANDS_METHODS;
+				error = COMMAND_INVALID_OPERANDS_METHODS;
 				return ERROR;
 			}
 		}
 		else
 		{
-			err = COMMAND_INVALID_NUMBER_OF_OPERANDS;
+			error = COMMAND_INVALID_NUMBER_OF_OPERANDS;
 			return ERROR;
 		}
 	}
@@ -357,5 +356,188 @@ void write_num_to_data(int num)
 /* This function tries to find the addressing method of a given operand and returns -1 if it was not found */
 int detect_method(char* operand)
 {
+	char* struct_field; /* When determining if it's a .struct directive, this will hold the part after the dot */
+
+	if (end_of_line(operand)) 
+		return NOT_FOUND;
+
+	/*----- Immediate addressing method check -----*/
+	if (*operand == '#') { /* First character is '#' */
+		operand++;
+		if (is_number(operand))
+			return METHOD_IMMEDIATE;
+	}
+
+	/*----- Direct addressing method check ----- */
+	else if (is_label(operand, FALSE)) /* Checking if it's a label when there shouldn't be a colon (:) at the end */
+		return METHOD_DIRECT;
+
+	/*----- Register addressing method check -----*/
+	else if (is_register(operand))
+		return METHOD_REGISTER;
+
+
+
+
+
+
+
+	/*----- Struct addressing method check -----*/
+	else if (is_label(strtok(operand, "."), FALSE)) { /* Splitting by dot character */
+		struct_field = strtok(NULL, ""); /* Getting the rest of the string */
+		if (strlen(struct_field) == 1 && (*struct_field == '1' || /* After the dot there should be '1' or '2' */
+			*struct_field == '2'))
+			return METHOD_STRUCT;
+	}
+	err = COMMAND_INVALID_METHOD;
+	return NOT_FOUND;
+}
+
+
+
+/* This function checks for the validity of given methods according to the opcode */
+boolean command_accept_num_operands(int type, boolean first, boolean second)
+{
+	switch (type)
+	{
+		/* These opcodes must receive 2 operands */
+	case MOV:
+	case CMP:
+	case ADD:
+	case SUB:
+	case LEA:
+		return first && second;
+
+		/* These opcodes must only receive 1 operand */
+	case NOT:
+	case CLR:
+	case INC:
+	case DEC:
+	case JMP:
+	case BNE:
+	case RED:
+	case PRN:
+	case JSR:
+		return first && !second;
+
+		/* These opcodes can't have any operand */
+	case RTS:
+	case STOP:
+		return !first && !second;
+	}
+	return FALSE;
+}
+
+/* This function checks for the validity of given addressing methods according to the opcode */
+boolean command_accept_methods(int type, int first_method, int second_method)
+{
+	switch (type)
+	{
+		/* These opcodes only accept
+		 * Source: 0, 1, 2, 3
+		 * Destination: 1, 2, 3
+		 */
+	case MOV:
+	case ADD:
+	case SUB:
+		return (first_method == METHOD_IMMEDIATE ||
+			first_method == METHOD_DIRECT ||
+			first_method == METHOD_REGISTER)
+			&&
+			(second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
+
+		/* LEA opcode only accept
+		 * Source: 1, 
+		 * Destination: 1, 3
+		*/
+	case LEA:
+		return (first_method == METHOD_DIRECT) && (second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
+
+		/* These opcodes only accept
+		 * Source: NONE
+		 * Destination: 1, 3
+		*/
+	case NOT:
+	case CLR:
+	case INC:
+	case DEC:
+	case JMP:
+	case BNE:
+	case RED:
+	case JSR:
+		return first_method == METHOD_DIRECT ||first_method == METHOD_REGISTER;
+
+		/* These opcodes are always ok because they accept all methods/none of them and
+		 * number of operands is being verified in another function
+		*/
+	case PRN:
+	case CMP:
+	case RTS:
+	case STOP:
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+
+
+/* This function encodes the first word of the command */
+unsigned int build_first_word(int type, int is_first, int is_second, int first_method, int second_method)
+{
+	int funct = 0;
+	funct = detect_funct(type, funct);
+
+	unsigned int word = 0;
+
+	/* Inserting the opcode */
+	word = type;
+
+	word <<= BITS_IN_METHOD; /* Leave space for first addressing method */
+
+	/* If there are two operands, insert the first */
+	if (is_first && is_second)
+		word |= first_method;
+
+	word <<= BITS_IN_METHOD; /* Leave space for second addressing method */
+
+	/* If there are two operands, insert the second. */
+	if (is_first && is_second)
+		word |= second_method;
+	/* If not, insert the first one (a single operand is a destination operand). */
+	else if (is_first)
+		word |= first_method;
+
+	word = insert_are(word, ABSOLUTE); /* Insert A/R/E mode to the word */
+
+	return word;
+}
+
+int detect_funct(int type, int funct)
+{
+	switch (type)
+	{
+	case ADD:
+	case CLR:
+	case JMP:
+		return funct = 1;
+
+	case SUB:
+	case NOT:
+	case BNE:
+		return funct = 2;
+
+	case INC:
+	case JSR:
+		return funct = 3;
+
+	case DEC:
+		return funct = 4;
+	}
+
+	else return funct = 0;
 
 }
+
+
+

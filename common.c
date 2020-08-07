@@ -95,9 +95,9 @@ void copy_sign(char* destination, char* line)
 	destination[i] = '\0';
 }
 
-/* This function checks whether a given token is a label or not (by syntax).
+/* This function checks whether a given sign is a label or not (by syntax).
  * The parameter colon states whether the function should look for a ':' or not
- * when parsing parameter (to make it easier for both kinds of tokens passed to this function.
+ * when parsing parameter (to make it easier for both kinds of signs passed to this function.
  */
 boolean is_label(char* sign, int colon)
 {
@@ -115,13 +115,13 @@ boolean is_label(char* sign, int colon)
 
 	if (sign_len > MAX_LABEL) {
 		if (colon) {
-			err = LABEL_TOO_LONG; /*max length 32*/
+			error = LABEL_TOO_LONG; /*max length 32*/
 		}
 		return FALSE;
 	}
 	if (!isalpha(*sign)) { 
 		if (colon) {
-			err = LABEL_INVALID_FIRST_CHAR;/* First character must be a letter */
+			error = LABEL_INVALID_FIRST_CHAR;/* First character must be a letter */
 		}
 		return FALSE;
 	}
@@ -207,10 +207,13 @@ int find_guidence(char* sign)
 /* Check if a sign matches a command name */
 int find_command(char* sign)
 {
+	int enum_index;
 	int sign_len = strlen(sign);
 	if (sign_len > 4 || sign_len < 3)/*a command is between 3 and 4 chars*/
 		return NO_MATCH;
-	return find_index(sign, commands, 16);/*we have a total of 16 commands*/
+	else
+		enum_index = find_index(sign, commands, 16); /*we have a total of 16 commands*/
+	return enum_index;
 }
 /*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
@@ -261,7 +264,11 @@ void write_string_to_data(char* str)
 
 /*********functions for word**********/
 
-
+/* This function inserts a given word to instructions memory */
+void encode_to_instructions(unsigned int word)
+{
+	instructions[ic++] = word;
+}
 
 
 
@@ -449,5 +456,14 @@ void write_error(int line_number) {
 	/*INVALID_SYNTAX*/ /*in case the line does not starts with alpha or .*/
 	/*INVALID_LABEL_LINE*/ /*in case there is only a label in a line*/
 }
+
+
+/* This function inserts given A/R/E 2 bits into given info bit-sequence (the info is being shifted left) */
+unsigned int insert_are(unsigned int info, int are)
+{
+	return (info << BITS_IN_ARE) | are; /* OR operand allows insertion of the 2 bits because 1 + 0 = 1 */
+}
+
+
 
 
