@@ -95,6 +95,19 @@ void copy_sign(char* destination, char* line)
 	destination[i] = '\0';
 }
 
+/* This function extracts bits, given start and end positions of the bit-sequence (0 is LSB) */
+unsigned int extract_bits(unsigned char word[3], int start, int end)
+{
+	unsigned int result;
+	int length = SRC_METHOD_BITS; /* Length of bit-sequence */
+	unsigned int mask = (int)pow(2, length) - 1; /* Creating a '111...1' mask with above line's length */
+
+	mask <<= start; /* Moving mask to place of extraction */
+	result = word & mask; /* The bits are now in their original position, and the rest is 0's */
+	result >>= start; /* Moving the sequence to LSB */
+	return result;
+}
+
 /* This function checks whether a given sign is a label or not (by syntax).
  * The parameter colon states whether the function should look for a ':' or not
  * when parsing parameter (to make it easier for both kinds of signs passed to this function.
@@ -348,7 +361,7 @@ void write_error(int line_number) {
 						break;
 
 					case LABEL_CANT_BE_REGISTER:
-						fprintf(stderr, "label can't have the same name as a register.\n");
+						fprintf(stderr, "label can't have the same name as a registerregister.\n");
 
 						break;
 		*/

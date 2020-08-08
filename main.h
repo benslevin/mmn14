@@ -14,7 +14,7 @@
 #define NUM 50
 
 /****************************Limits*******************************/
-#define REG_LEN 2
+#define REG_LEN 3
 #define MIN_REGISTER_NUM 0
 #define MAX_REGISTER_NUM 7
 
@@ -27,6 +27,11 @@
 #define DEST_METHOD_BITS 2
 #define SRC_METHOD_BITS 2
 #define OPCODE_BITS 6
+
+#define SRC_METHOD_START_POS 17
+#define SRC_METHOD_END_POS 16
+#define DEST_METHOD_START_POS 12
+#define DEST_METHOD_END_POS 11
 
 char filename[MAX_INPUT];
 char line[MAX_INPUT];
@@ -61,16 +66,6 @@ enum { NO_COLON, COLON };
 
 
 
-/*-----------------------------------------------------------------------------------------------*/
-//for word construction
-unsigned char* word, temp;
-unsigned char* temp = (char*) malloc(sizeof(char) * 3);/* The size of 24 bit array, a char is 8, multiply by 3, and convert it to a char pointer */
-if (temp == NULL) {
-    fprintf(stderr, "Could not allocate memory for word");
-    exit(ERROR);
-}
-
-*word = temp;
 
 
 

@@ -4,13 +4,13 @@
 
 
 
-/*List of avaiable commands*/
+/* List of avaiable commands */
 const char* commands[] = { "mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp", "bne","jsr", "red", "prn", "rts", "stop"};
 
-/*List of avaiable guidance*/
+/* List of avaiable guidance */
 const char* guidence[] = {".data", ".string", ".entry", ".extern"};
 
-
+/* The fucnction that resets all flags for next file */
 void reset_falgs() {
     symbols_table = NULL;
     ext_list = NULL;
@@ -20,7 +20,7 @@ void reset_falgs() {
     error_exist = FALSE;
 }
 
-
+/* The main function of the program */
 int main(int argc, char* argv[]){
 
     int i;
@@ -31,33 +31,32 @@ int main(int argc, char* argv[]){
     }
     else {
         for (i = 1; i < argc; i++) {
-            createFileName(argv[i]);
-            if ((fp = fopen(argv[i], "r")) == NULL) {
+            create_file_name(argv[i]); /* Uses the file name given in the command line */
+            if ((fp = fopen(argv[i], "r")) == NULL) { /* Open the file with reading permision */
                 fprintf(stderr, "\nAn error occured while opening the file: %s\n", fileName);
             }
             else {
-                if (feof(fp) == 1)/* not sure if we need to see if the file is empty here of after each char in the passOne function ep.11 1:00*/
+                if (feof(fp) == 1)/* Checks if EOF reached */
                     fprintf(stderr, "\nThe file is empty\n");
                 else {
                     fprintf(stdout, "*******Started working on file: %s*******", fileName);
 
-                    reset_flags();
-                    passOne(fp);/*here we can add a while loop to see if the feof flag is on*/
+                    reset_flags();/* Resets all flags for the next file */
+                    passOne(fp);
 
-                    if (err == 0) {/*if there are no errors, continue with second pass*/
-                        rewind(fp);/*starts the second pass from the start of the file*/
+                    if (err == 0) {/* If there are no errors, continue with second pass */
+                        rewind(fp);/*Starts the second pass from the start of the file*/
                         passTwo(fp, argv[i]);
                     }
-                    else {/*first pass contains errors, stop processing the file*/
+                    else {/* First pass contains errors, stop processing the file */
                         fprintf(stdout, "Errors found in file: %s, stoped working on file", fileName);
                     }
                     
                     fprintf(stdout, "*******Finished working on file: %s*******", fileName);
-                    fclose(fp);
+                    fclose(fp); /* Close file */
                 }
             }
         }
     }
-
     return 0;
 }
