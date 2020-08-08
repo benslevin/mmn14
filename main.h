@@ -19,6 +19,14 @@
 #define MAX_REGISTER_NUM 7
 
 
+/*******************bits aloocation in word**********************/
+#define ARE_BITS 3
+#define FUNCT_BITS 5
+#define DEST_REG_BITS 3
+#define SRC_REG_BITS 3
+#define DEST_METHOD_BITS 2
+#define SRC_METHOD_BITS 2
+#define OPCODE_BITS 6
 
 char filename[MAX_INPUT];
 char line[MAX_INPUT];
@@ -33,12 +41,11 @@ enum commands { MOV=0, CMP=1, ADD=2, SUB=2, LEA=4, CLR=5, NOT=5, INC=5, DEC=5, J
 /*Enum of commands funct*/
 enum commands_funct { ADD = 1, SUB = 2, CLR = 1, NOT = 2, INC = 3, DEC = 4, JMP = 1, BNE = 2, JSR = 3 , UNKNOWN_FUNCT=10};
 
-
 /**/
 enum filetype { FILE_INPUT, FILE_OBJECT, FILE_ENTRY, FILE_EXTERN };
 
 /* A/R/E modes ordered by their numerical value */
-enum ARE { ABSOLUTE, EXTERNAL, RELOCATABLE };
+enum ARE { EXTERNAL = 1, RELOCATABLE = 2, ABSOLUTE = 4 };
 
 /* Addressing methods ordered by their code */
 enum methods { METHOD_IMMEDIATE, METHOD_DIRECT, METHOD_RELATIVE, METHOD_REGISTER, METHOD_UNKNOWN };
@@ -65,13 +72,6 @@ if (temp == NULL) {
 
 *word = temp;
 
-/*bits aloocation in word*/
-#define ARE_BITS 3
-#define FUNCT_BITS 5
-#define DEST_REG_BITS 3
-#define SRC_REG_BITS 3
-#define DEST_METHOD_BITS 2
-#define SRC_METHOD_BITS 2
-#define OPCODE_BITS 6
+
 
 fprintf(stdout, "%hh6X", (unsigned char)* word)//chose one of the examples, or ff or convertion to unsigned char

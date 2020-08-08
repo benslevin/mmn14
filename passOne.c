@@ -440,20 +440,26 @@ boolean command_accept_methods(int type, int first_method, int second_method)
 	switch (type)
 	{
 		/* These opcodes only accept
-		 * Source: 0, 1, 2, 3
-		 * Destination: 1, 2, 3
+		 * Source: 0, 1, 3
+		 * Destination: 1, 3
 		 */
 	case MOV:
 	case ADD:
 	case SUB:
-		return (first_method == METHOD_IMMEDIATE ||
-			first_method == METHOD_DIRECT ||
-			first_method == METHOD_REGISTER)
+		return (first_method == METHOD_IMMEDIATE ||	first_method == METHOD_DIRECT || first_method == METHOD_REGISTER)
+				&&
+				(second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
+		/* CMP opcode only accept
+		 * Source: 0, 1, 3
+		 * Destination: 0, 1, 3
+		*/
+	case CMP:
+		return (first_method == METHOD_IMMEDIATE || first_method == METHOD_DIRECT || first_method == METHOD_REGISTER)
 			&&
-			(second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
+			(second_method == METHOD_IMMEDIATE || second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
 
 		/* LEA opcode only accept
-		 * Source: 1,
+		 * Source: 1
 		 * Destination: 1, 3
 		*/
 	case LEA:
@@ -463,35 +469,88 @@ boolean command_accept_methods(int type, int first_method, int second_method)
 		 * Source: NONE
 		 * Destination: 1, 3
 		*/
-	case NOT:
 	case CLR:
+	case NOT:
 	case INC:
 	case DEC:
 	case RED:
-		return first_method == METHOD_DIRECT || first_method == METHOD_REGISTER;
+		return (first_method == METHOD_DIRECT || first_method == METHOD_REGISTER);
 
+		/* These opcodes only accept
+		 * Source: NONE
+		 * Destination: 1, 2
+		*/
 	case JMP:
 	case BNE:
 	case JSR:
-		return second_method == METHOD_DIRECT || second_method == METHOD_RELATIVE;
+		return (first_method == METHOD_DIRECT || first_method == METHOD_RELATIVE);
+
+		/* PRN opcode only accept
+		 * Source: NONE
+		 * Destination: 0, 1, 3
+		*/
+	case PRN:
+		return (first_method == METHOD_IMMEDIATE || first_method == METHOD_DIRECT || first_method == METHOD_REGISTER);
+
 		/* These opcodes are always ok because they accept all methods/none of them and
 		 * number of operands is being verified in another function
 		*/
-	case PRN:
-	case CMP:
 	case RTS:
 	case STOP:
 		return TRUE;
 	}
-
-
-
-
 	return FALSE;
 }
 
+/* This function encodes the first word of the command */
+unsigned int build_first_word(int type, int is_first, int is_second, int first_method, int second_method)
+{
+	int funct = 0;
+	funct = detect_funct(type, funct);
 
+	unsigned char word[3] = 0;
 
+	/* Inserting the opcode */
+	word |= type;
+
+	word <<= SRC_METHOD_BITS; /* Leave space for first method bits */
+
+	/* If there are two operands, insert the first */
+	if (is_first && is_second) 
+		word |= first_method;/* insert first method bits, if not, insert nothing and move bits*/
+	
+	word <<= SRC_REG_BITS; /* Leave space for register bits */
+	
+	if (first_method == METHOD_REGISTER) {
+		word |= /*insert source register number*/;
+	}
+	word <<= DEST_METHOD_BITS;
+
+	/* If there are two operands, insert the second. */
+	if (is_first && is_second)
+		word |= second_method;
+	/* If not, insert the first one (a single operand is a destination operand). */
+	else if (is_first)
+		word |= first_method;
+
+	if (first_method == METHOD_REGISTER) 
+		word |= /*insert destination register number*/
+
+	word <<= FUNCT_BITS; /*Leave space for function bits*/
+
+	if (funct != UNKNOWN_FUNCT)
+		word |= funct;
+
+	word <<= ARE_BITS; /*Leave space for ARE bits*/
+	
+	word |= ABSOLUTE;
+
+	//word = insert_are(word, ABSOLUTE); /* Insert A/R/E mode to the word */
+
+	return word;
+}
+
+//not for use!!!! just reference
 /* This function encodes the first word of the command */
 unsigned int build_first_word(int type, int is_first, int is_second, int first_method, int second_method)
 {
