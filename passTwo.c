@@ -55,7 +55,7 @@ void line_pass_two(char* line) {
 	else if ((command_type = find_command(current_sign)) != NOT_FOUND) /* Encoding command's additional words */
 	{
 		line = next_sign(line);
-		handle_command_second_pass(command_type, line);/*write the command*/
+		handle_command_pass_two(command_type, line);/*write the command*/
 	}
 }
 
@@ -112,14 +112,14 @@ void does_operand_exists(int ope, boolean* is_source, boolean* is_destination) {
 	case INC:
 	case DEC:
 	case JMP:
+	case BNE:
 	case JSR:
+	case RED:
+	case PRN:
 		is_source = FALSE;
 		is_destination = TRUE;
 		break;
 
-	case BNE:
-	case RED:
-	case PRN:
 	case RTS:
 	case STOP:
 		is_source = FALSE;
@@ -132,8 +132,14 @@ void does_operand_exists(int ope, boolean* is_source, boolean* is_destination) {
 
 
 /* This function handles commands for the second pass - encoding additional words */
-int handle_command_second_pass(int type, char* line)
+int handle_command_pass_two(int type, char* line)
 {
+	int i;
+	for (i = 0; instructions[i] != NULL; i++) {
+		if (instructions[i] == 0) {
+
+		}
+	}
 	char first_op[MAX_INPUT], second_op[MAX_INPUT]; /* will hold first and second operands */
 	char* src = first_op, * dest = second_op; /* after the check below, src will point to source and
  *                                              dest to destination operands */
@@ -142,12 +148,13 @@ int handle_command_second_pass(int type, char* line)
 
 	does_operand_exists(type, &is_src, &is_dest);
 
+	
 	/* Extracting source and destination addressing methods */
 	if (is_src)
 		src_method = extract_bits(instructions[ic], SRC_METHOD_START_POS, SRC_METHOD_END_POS);//check how to place bits
 	if (is_dest)
 		dest_method = extract_bits(instructions[ic], DEST_METHOD_START_POS, DEST_METHOD_END_POS);//check how to place bits
-
+	
 	/* Matching src and dest pointers to the correct operands (first or second or both) */
 	if (is_src || is_dest)
 	{
@@ -182,34 +189,6 @@ int encode_additional_words(char* src, char* dest, boolean is_src, boolean is_de
 		if (is_dest) encode_additional_word(TRUE, dest_method, dest);
 	}
 	return is_error();
-}
-
-
-/* This function encodes the additional words of the operands to instructions memory */
-int encode_additional_words(char* src, char* dest, boolean is_src, boolean is_dest, int src_method,
-	int dest_method) {
-	/* There's a special case where 2 register operands share the same additional word */
-	if (is_src && is_dest && src_method == METHOD_REGISTER && dest_method == METHOD_REGISTER)
-	{
-		encode_to_instructions(build_register_word(FALSE, src) | build_register_word(TRUE, dest));
-	}
-	else /* It's not the special case */
-	{
-		if (is_src) encode_additional_word(FALSE, src_method, src);
-		if (is_dest) encode_additional_word(TRUE, dest_method, dest);
-	}
-	return is_error();
-}
-
-/* This function builds the additional word for a register operand */
-unsigned int build_register_word(boolean is_dest, char* reg)
-{
-	unsigned int word = (unsigned int)atoi(reg + 1); /* Getting the register's number */
-	/* Inserting it to the required bits (by source or destination operand) */
-	if (!is_dest)
-		word <<= BITS_IN_REGISTER;
-	word = insert_are(word, ABSOLUTE);
-	return word;
 }
 
 /* This function encodes a given label (by name) to memory */

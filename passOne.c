@@ -287,7 +287,7 @@ int handle_command(int type, char* line)
 	boolean is_first_register = FALSE;
 	boolean is_second_register = FALSE;
 	int first_register = 0;
-	int seconed_register = 0;
+	int second_register = 0;
 
 	/* Trying to parse 2 operands */
 	line = next_list_sign(first_operand, line);
@@ -550,38 +550,6 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
 	word |= ABSOLUTE;
 
 	//word = insert_are(word, ABSOLUTE); /* Insert A/R/E mode to the word */
-
-	return word;
-}
-
-//not for use!!!! just reference
-/* This function encodes the first word of the command */
-unsigned int build_first_word(int type, int is_first, int is_second, int first_method, int second_method)
-{
-	int funct = 0;
-	funct = detect_funct(type, funct);
-
-	unsigned int word = 0;
-
-	/* Inserting the opcode */
-	word = type;
-
-	word <<= BITS_IN_METHOD; /* Leave space for first addressing method */
-
-	/* If there are two operands, insert the first */
-	if (is_first && is_second)
-		word |= first_method;
-
-	word <<= BITS_IN_METHOD; /* Leave space for second addressing method */
-
-	/* If there are two operands, insert the second. */
-	if (is_first && is_second)
-		word |= second_method;
-	/* If not, insert the first one (a single operand is a destination operand). */
-	else if (is_first)
-		word |= first_method;
-
-	word = insert_are(word, ABSOLUTE); /* Insert A/R/E mode to the word */
 
 	return word;
 }
