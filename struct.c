@@ -95,7 +95,8 @@ boolean is_external_label(labelPtr l, char* name) {
 
 boolean is_existing_label(labelPtr l, char* name) {
 	
-	return (get_label(l, name) != NULL);
+	if(get_label(l, name) != NULL)
+		return TRUE;
 
 }
 

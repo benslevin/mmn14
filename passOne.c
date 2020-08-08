@@ -288,7 +288,7 @@ int handle_command(int type, char* line)
 	boolean is_first_register = FALSE;
 	boolean is_second_register = FALSE;
 	int first_register = 0;
-	int seconed_register = 0;
+	int second_register = 0;
 
 	/* Trying to parse 2 operands */
 	line = next_list_sign(first_operand, line);
