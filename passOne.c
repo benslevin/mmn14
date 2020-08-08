@@ -256,6 +256,7 @@ int handle_extern_guidance(char* line)
 		error = EXTERN_NO_LABEL;
 		return ERROR;
 	}
+
 	if (!is_label(sign, FALSE)) /* The sign should be a label (without a colon) */
 	{
 		error = EXTERN_INVALID_LABEL;
@@ -342,7 +343,7 @@ int handle_command(int type, char* line)
 			if (command_accept_methods(type, first_method, second_method)) /* If addressing methods are valid for this specific command */
 			{
 				/* encode first word of the command to memory and increase ic by the number of additional words */
-				encode_to_instructions(build_first_word(type,is_first, is_second, first_method, second_method, first_register, second_register));
+				encode_to_instructions(build_first_word(type, is_first, is_second, first_method, second_method, first_register, second_register));
 				ic += calculate_command_num_additional_words(is_first, is_second, first_method, second_method);//////////////////////////////////////////////need to edjust the method
 			}
 
@@ -390,9 +391,19 @@ int detect_method(char* operand)
 	else if (is_label(operand, FALSE)) /* Checking if it's a label when there shouldn't be a colon (:) at the end */
 		return METHOD_DIRECT;
 
+
+	else if (*operand == '&') {
+		operand++;
+		if (is_label(operand, FALSE))
+			/*need to add extern functionality*/
+			return METHOD_RELATIVE;
+	}
+
 	/*----- Register addressing method check -----*/
 	else if (is_register(operand))
 		return METHOD_REGISTER;
+
+
 	/*...*/
 	//else if (is_register(operand))/*creat a method_relative*/
 		//return METHOD_REGISTER;
@@ -450,9 +461,9 @@ boolean command_accept_methods(int type, int first_method, int second_method)
 	case MOV:
 	case ADD:
 	case SUB:
-		return (first_method == METHOD_IMMEDIATE ||	first_method == METHOD_DIRECT || first_method == METHOD_REGISTER)
-				&&
-				(second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
+		return (first_method == METHOD_IMMEDIATE || first_method == METHOD_DIRECT || first_method == METHOD_REGISTER)
+			&&
+			(second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
 		/* CMP opcode only accept
 		 * Source: 0, 1, 3
 		 * Destination: 0, 1, 3
@@ -520,11 +531,11 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
 	word <<= SRC_METHOD_BITS; /* Leave space for first method bits */
 
 	/* If there are two operands, insert the first */
-	if (is_first && is_second) 
+	if (is_first && is_second)
 		word |= first_method;/* insert first method bits, if not, insert nothing and move bits*/
-	
+
 	word <<= SRC_REG_BITS; /* Leave space for register bits */
-	
+
 	if (first_method == METHOD_REGISTER) {
 		word |= first_register; /*insert source register number*/
 	}
@@ -546,7 +557,7 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
 		word |= funct;
 
 	word <<= ARE_BITS; /*Leave space for ARE bits*/
-	
+
 	word |= ABSOLUTE;
 
 	//word = insert_are(word, ABSOLUTE); /* Insert A/R/E mode to the word */
@@ -554,37 +565,6 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
 	return word;
 }
 
-//not for use!!!! just reference
-/* This function encodes the first word of the command */
-unsigned int build_first_word(int type, int is_first, int is_second, int first_method, int second_method)
-{
-	int funct = 0;
-	funct = detect_funct(type, funct);
-
-	unsigned int word = 0;
-
-	/* Inserting the opcode */
-	word = type;
-
-	word <<= BITS_IN_METHOD; /* Leave space for first addressing method */
-
-	/* If there are two operands, insert the first */
-	if (is_first && is_second)
-		word |= first_method;
-
-	word <<= BITS_IN_METHOD; /* Leave space for second addressing method */
-
-	/* If there are two operands, insert the second. */
-	if (is_first && is_second)
-		word |= second_method;
-	/* If not, insert the first one (a single operand is a destination operand). */
-	else if (is_first)
-		word |= first_method;
-
-	word = insert_are(word, ABSOLUTE); /* Insert A/R/E mode to the word */
-
-	return word;
-}
 
 /* This function calculates number of additional words for a command */
 int calculate_command_num_additional_words(int is_first, int is_second, int first_method, int second_method)
@@ -604,8 +584,8 @@ int calculate_command_num_additional_words(int is_first, int is_second, int firs
 /* This function returns how many additional words an addressing method requires */
 int num_words(int method)
 {
-    if(method == METHOD_IMMEDIATE) /* Struct addressing method requires two additional words */
-        return 1;
+	if (method == METHOD_IMMEDIATE) /* Struct addressing method requires two additional words */
+		return 1;
 	if (method == METHOD_DIRECT)
 		return 1;
 	if (method == METHOD_IMMEDIATE) /* Struct addressing method requires two additional words */
