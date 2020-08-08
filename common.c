@@ -174,16 +174,7 @@ char* next_sign(char* ch, char * line)
 	return line;
 }
 
-/* This function finds an index of a string in an array of strings */
-int find_index(char* sign, const char* arr[], int n)
-{
-	int i;
-	for (i = 0; i < n; i++)
-		if (strcmp(sign, arr[i]) == 0) {
-			return i;
-		}
-	return NO_MATCH;
-}
+
 
 /* Check if a token matches a register name */
 boolean is_register(char* sign)
@@ -193,6 +184,19 @@ boolean is_register(char* sign)
 		return TRUE;
 	}
 	else return FALSE;
+}
+
+/* This function finds an index of a string in an array of strings */
+int find_index(char* sign, const char* arr[], int n)
+{
+	int i;
+	int find_enum;
+	for (i = 0; i < n; i++)
+		if (strcmp(sign, arr[i]) == 0) {
+			find_enum = arr[i];
+			return find_enum;
+		}
+	return NO_MATCH;
 }
 
 /* Check if a token matches a directive name */
@@ -213,6 +217,19 @@ int find_command(char* sign)
 		return NO_MATCH;
 	else
 		enum_index = find_index(sign, commands, 16); /*we have a total of 16 commands*/
+	return enum_index;
+}
+
+
+/* Check if a sign matches a command funct name */
+int find_command_funct(char* sign)
+{
+	int enum_index;
+	int sign_len = strlen(sign);
+	if (sign_len != 3)/*a command is between 3 and 4 chars*/
+		return NO_MATCH;
+	else
+		enum_index = find_index(sign, commands_funct, 9); /*we have a total of 16 commands*/
 	return enum_index;
 }
 /*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/

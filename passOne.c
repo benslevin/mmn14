@@ -44,6 +44,7 @@ void  line_pass_one(char* line)
 	/* Initializing variables for the type of the directive/command */
 	int guidance_type = UNKNOWN_TYPE;
 	int command_type = UNKNOWN_COMMAND;
+	int funct_type = UNKNOWN_FUNCT;
 	boolean label = FALSE; /* This variable will hold TRUE if a label exists in this line */
 	labelPtr label_node = NULL; /* This variable holds optional label in case we need to create it */
 	char current_sign[LINE_LENGTH]; /* This string will hold the current sign if we analyze it */
@@ -87,8 +88,8 @@ void  line_pass_one(char* line)
 				else
 					/* Setting fields accordingly in label */
 					label_node->symbol_type = "data";
-					label_node->address = dc; /* Address of data label is dc */
-				    
+				label_node->address = dc; /* Address of data label is dc */
+
 			}
 			line = next_sign(line);
 			handle_guidance(guidance_type, line);
@@ -96,6 +97,9 @@ void  line_pass_one(char* line)
 
 		else if ((command_type = find_command(current_sign)) != NO_MATCH) /* in case the sign is a command */
 		{
+
+			if (funct_type = find_command_funct(current_sign)) != NO_MATCH)
+			{
 			if (label != 0)
 			{
 				/* Setting fields accordingly in label */
@@ -103,8 +107,10 @@ void  line_pass_one(char* line)
 				label_node->symbol_type = "code";
 				label_node->address = ic;/* Address of data label is ic */
 			}
+			}
 			line = next_sign(line);
 			handle_command(command_type, line);
+
 		}
 		else
 			error = MISSING_SYNTAX;/*In case a line does not have a command or a guidance */
@@ -358,7 +364,7 @@ int detect_method(char* operand)
 {
 	char* struct_field; /* When determining if it's a .struct directive, this will hold the part after the dot */
 
-	if (end_of_line(operand)) 
+	if (end_of_line(operand))
 		return NOT_FOUND;
 
 	/*----- Immediate addressing method check -----*/
@@ -447,7 +453,7 @@ boolean command_accept_methods(int type, int first_method, int second_method)
 			(second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
 
 		/* LEA opcode only accept
-		 * Source: 1, 
+		 * Source: 1,
 		 * Destination: 1, 3
 		*/
 	case LEA:
@@ -461,12 +467,13 @@ boolean command_accept_methods(int type, int first_method, int second_method)
 	case CLR:
 	case INC:
 	case DEC:
+	case RED:
+		return first_method == METHOD_DIRECT || first_method == METHOD_REGISTER;
+
 	case JMP:
 	case BNE:
-	case RED:
 	case JSR:
-		return first_method == METHOD_DIRECT ||first_method == METHOD_REGISTER;
-
+		return second_method == METHOD_DIRECT || second_method == METHOD_RELATIVE;
 		/* These opcodes are always ok because they accept all methods/none of them and
 		 * number of operands is being verified in another function
 		*/
@@ -476,6 +483,9 @@ boolean command_accept_methods(int type, int first_method, int second_method)
 	case STOP:
 		return TRUE;
 	}
+
+
+
 
 	return FALSE;
 }
@@ -513,6 +523,7 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
 	return word;
 }
 
+/*
 int detect_funct(int type, int funct)
 {
 	switch (type)
@@ -540,4 +551,4 @@ int detect_funct(int type, int funct)
 }
 
 
-
+*/
