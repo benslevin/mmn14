@@ -362,7 +362,6 @@ void write_num_to_data(int num)
 /* This function tries to find the addressing method of a given operand and returns -1 if it was not found */
 int detect_method(char* operand)
 {
-	char* struct_field; /* When determining if it's a .struct directive, this will hold the part after the dot */
 
 	if (end_of_line(operand))
 		return NOT_FOUND;
@@ -381,20 +380,12 @@ int detect_method(char* operand)
 	/*----- Register addressing method check -----*/
 	else if (is_register(operand))
 		return METHOD_REGISTER;
+	/*...*/
+	//else if (is_register(operand))/*creat a method_relative*/
+		//return METHOD_REGISTER;
 
 
 
-
-
-
-
-	/*----- Struct addressing method check -----*/
-	else if (is_label(strtok(operand, "."), FALSE)) { /* Splitting by dot character */
-		struct_field = strtok(NULL, ""); /* Getting the rest of the string */
-		if (strlen(struct_field) == 1 && (*struct_field == '1' || /* After the dot there should be '1' or '2' */
-			*struct_field == '2'))
-			return METHOD_STRUCT;
-	}
 	err = COMMAND_INVALID_METHOD;
 	return NOT_FOUND;
 }
