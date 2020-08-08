@@ -113,7 +113,7 @@ void creat_object_file(FILE *fp) {
 		param1 = address;
 		param2 = instructions[i];
 
-		fprintf(fp, "%06d \t %hh6X\n", param1, param2);
+		fprintf(fp, "%07d \t %hh6X\n", param1, param2);
 
 		free(param1);
 		free(param2);
@@ -124,7 +124,7 @@ void creat_object_file(FILE *fp) {
 		param1 = address;
 		param2 = data[i];
 
-		fprintf(fp, "%06d \t %hh6X\n", param1, param2);
+		fprintf(fp, "%07d \t %hh6X\n", param1, param2);
 
 		free(param1);
 		free(param2);
@@ -136,17 +136,18 @@ void creat_object_file(FILE *fp) {
 void creat_entry_file(FILE* fp) {
 
 	char* param1, * param2;
-
 	labelPtr label = symbols_table;
+
 	/* Go through symbols table and print only symbols that have an entry */
 	while (label)
 	{
 		if (label->entry)
 		{
 			param1 = label -> name;
-			param2 = label -> address
-			fprintf(fp, "%s \t %s\n", label->name, base32_address);
-			free(base32_address);
+			param2 = label -> address;
+			fprintf(fp, "%s \t %hh6X\n", param1, param2);
+			free(param1);
+			free(param2);
 		}
 		label = label->next;
 	}
@@ -155,15 +156,17 @@ void creat_entry_file(FILE* fp) {
 
 void creat_external_file(FILE* fp) {
 
-	char* base32_address;
+	char* param1, param2;
 	extPtr node = ext_list;
 
 	/* Going through external circular linked list and pulling out values */
 	do
 	{
-		base32_address = convert_to_base_32(node->address);
-		fprintf(fp, "%s \t %s\n", node->name, base32_address); /* Printing to file */
-		free(base32_address);
+		param1 = node -> name;
+		param2 = node -> address;
+		fprintf(fp, "%s \t %hh6X\n", param1, param2); /* Printing to file */
+		free(param1);
+		free(param2);
 		node = node->next;
 	} while (node != ext_list);
 	fclose(fp);
