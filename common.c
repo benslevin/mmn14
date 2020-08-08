@@ -155,7 +155,7 @@ boolean is_label(char* sign, int colon)
 	{
 		if (find_command(sign) != NO_MATCH) {
 			if (colon) {
-				err = LABEL_CANT_BE_COMMAND; /* Label can't have the same name as a command */
+				error = LABEL_CANT_BE_COMMAND; /* Label can't have the same name as a command */
 			}
 			return FALSE;
 		}
@@ -164,7 +164,7 @@ boolean is_label(char* sign, int colon)
 	if (is_register(sign)) /* Label can't have the same name as a register */
 	{
 		if (colon) {
-			err = LABEL_CANT_BE_REGISTER;
+			error = LABEL_CANT_BE_REGISTER;
 		}
 		return FALSE;
 	}

@@ -44,7 +44,7 @@ int main(int argc, char* argv[]){
                     reset_flags();/* Resets all flags for the next file */
                     passOne(fp);
 
-                    if (err == 0) {/* If there are no errors, continue with second pass */
+                    if (error == 0) {/* If there are no errors, continue with second pass */
                         rewind(fp);/*Starts the second pass from the start of the file*/
                         passTwo(fp, argv[i]);
                     }
