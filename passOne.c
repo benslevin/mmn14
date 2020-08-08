@@ -284,6 +284,11 @@ int handle_command(int type, char* line)
 	int first_method, second_method; /* These will hold the addressing methods of the operands */
 	char first_operand[20], second_operand[20]; /* These strings will hold the operands */
 
+	boolean is_first_register = FALSE;
+	boolean is_second_register = FALSE;
+	int first_register = 0;
+	int seconed_register = 0;
+
 	/* Trying to parse 2 operands */
 	line = next_list_sign(first_operand, line);
 	if (!end_of_line(first_operand)) /* If first operand is not empty */
@@ -322,6 +327,14 @@ int handle_command(int type, char* line)
 	if (is_second == TRUE)
 		second_method = detect_method(second_operand); /* Detect addressing method of second operand */
 
+	if (first_method = METHOD_REGISTER)
+		first_register = find_reg_number(first_operand);
+	if (second_method = METHOD_REGISTER)
+		second_register = find_reg_number(second_operand);
+
+
+
+
 	if (!is_error()) /* If there was no error while trying to parse addressing methods */
 	{
 		if (command_accept_num_operands(type, is_first, is_second)) /* If number of operands is valid for this specific command */
@@ -329,7 +342,7 @@ int handle_command(int type, char* line)
 			if (command_accept_methods(type, first_method, second_method)) /* If addressing methods are valid for this specific command */
 			{
 				/* encode first word of the command to memory and increase ic by the number of additional words */
-				encode_to_instructions(build_first_word(type, is_first, is_second, first_method, second_method));
+				encode_to_instructions(build_first_word(type,is_first, is_second, first_method, second_method, first_register, second_register));
 				ic += calculate_command_num_additional_words(is_first, is_second, first_method, second_method);//////////////////////////////////////////////need to edjust the method
 			}
 
@@ -494,7 +507,7 @@ boolean command_accept_methods(int type, int first_method, int second_method)
 }
 
 /* This function encodes the first word of the command */
-unsigned int build_first_word(int type, int is_first, int is_second, int first_method, int second_method)
+unsigned int build_first_word(int type, int is_first, int is_second, int first_method, int second_method, int first_register, int second_register)
 {
 	int funct = 0;
 	funct = detect_funct(type, funct);
@@ -513,7 +526,7 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
 	word <<= SRC_REG_BITS; /* Leave space for register bits */
 	
 	if (first_method == METHOD_REGISTER) {
-		word |= /*insert source register number*/;
+		word |= first_register; /*insert source register number*/
 	}
 	word <<= DEST_METHOD_BITS;
 
@@ -524,8 +537,8 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
 	else if (is_first)
 		word |= first_method;
 
-	if (first_method == METHOD_REGISTER) 
-		word |= /*insert destination register number*/
+	if (second_method == METHOD_REGISTER)
+		word |= second_register; /*insert destination register number*/
 
 	word <<= FUNCT_BITS; /*Leave space for function bits*/
 
@@ -573,32 +586,31 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
 	return word;
 }
 
-/*
-int detect_funct(int type, int funct)
+/* This function calculates number of additional words for a command */
+int calculate_command_num_additional_words(int is_first, int is_second, int first_method, int second_method)
 {
-	switch (type)
-	{
-	case ADD:
-	case CLR:
-	case JMP:
-		return funct = 1;
+	int count = 0;
+	if (is_first) count += num_words(first_method);
+	if (is_second) count += num_words(second_method);
 
-	case SUB:
-	case NOT:
-	case BNE:
-		return funct = 2;
+	/* If both methods are register, they will share the same additional word */
+	if (is_first && is_second && first_method == METHOD_REGISTER && second_method == METHOD_REGISTER) count--;
 
-	case INC:
-	case JSR:
-		return funct = 3;
-
-	case DEC:
-		return funct = 4;
-	}
-
-	else return funct = 0;
-
+	return count;
 }
 
 
-*/
+
+/* This function returns how many additional words an addressing method requires */
+int num_words(int method)
+{
+    if(method == METHOD_IMMEDIATE) /* Struct addressing method requires two additional words */
+        return 1;
+	if (method == METHOD_DIRECT)
+		return 1;
+	if (method == METHOD_IMMEDIATE) /* Struct addressing method requires two additional words */
+		return 1;
+	if (method == METHOD_DIRECT)
+		return 1;
+
+}

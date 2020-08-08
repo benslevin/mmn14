@@ -186,6 +186,23 @@ boolean is_register(char* sign)
 	else return FALSE;
 }
 
+
+int find_reg_number(char* sign)
+{
+	int i;
+	/* A register must have 2 characters, the first is 'r' and the second is a number between 0-7 */
+	if (strlen(sign) == REG_LEN && sign[0] == 'r') 
+	{
+		for (i = MIN_REGISTER_NUM; i <= MAX_REGISTER_NUM; i++)
+			if (sing[1] == i)
+				return i;
+	}
+	else return 0;
+}
+
+
+
+
 /* This function finds an index of a string in an array of strings */
 int find_index(char* sign, const char* arr[], int n)
 {
@@ -282,7 +299,7 @@ void write_string_to_data(char* str)
 /*********functions for word**********/
 
 /* This function inserts a given word to instructions memory */
-void encode_to_instructions(unsigned int word)
+void encode_to_instructions(unsigned char word[3])
 {
 	instructions[ic++] = word;
 }
@@ -298,7 +315,7 @@ void encode_to_instructions(unsigned int word)
 void write_error(int line_number) {
 	fprintf(stderr, "ERROR (line %d): ", line_number);
 
-	switch (err)
+	switch (error)
 	{
 	case INVALID_SYNTAX:
 		fprintf(stderr, "first non-blank character must be a letter or a dot.\n");
