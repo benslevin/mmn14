@@ -1,14 +1,17 @@
 #include "main.h"
 
 
-
-
-
 /* List of avaiable commands */
 const char* commands[] = { "mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp", "bne","jsr", "red", "prn", "rts", "stop"};
 
 /* List of avaiable guidance */
 const char* guidence[] = {".data", ".string", ".entry", ".extern"};
+
+unsigned int data[MACHINE_RAM];
+unsigned int instructions[MACHINE_RAM];
+int ic;
+int dc;
+int error;
 
 /* The fucnction that resets all flags for next file */
 void reset_falgs() {

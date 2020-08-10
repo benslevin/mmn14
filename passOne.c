@@ -410,7 +410,7 @@ int detect_method(char* operand)
 
 
 
-	err = COMMAND_INVALID_METHOD;
+	error = COMMAND_INVALID_METHOD;
 	return NOT_FOUND;
 }
 
@@ -584,13 +584,12 @@ int calculate_command_num_additional_words(int is_first, int is_second, int firs
 /* This function returns how many additional words an addressing method requires */
 int num_words(int method)
 {
-	if (method == METHOD_IMMEDIATE) /* Struct addressing method requires two additional words */
+	if (method == METHOD_IMMEDIATE)
 		return 1;
 	if (method == METHOD_DIRECT)
 		return 1;
-	if (method == METHOD_IMMEDIATE) /* Struct addressing method requires two additional words */
+	if (method == METHOD_IMMEDIATE)
 		return 1;
 	if (method == METHOD_DIRECT)
 		return 1;
-
 }
