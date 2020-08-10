@@ -21,7 +21,7 @@ typedef struct structLabels {
 
 typedef struct ext* extPtr;
 typedef struct ext {
-	char name[LABEL_LENGTH]; /* The name of the extern label */
+	char name[MAX_LABEL]; /* The name of the extern label */
 	unsigned int address; /* The address in memory where the external address should be replaced */
 	extPtr next; /* A pointer to the next extern in the list */
 	extPtr prev; /* A pointer to the previous extern in the list */
