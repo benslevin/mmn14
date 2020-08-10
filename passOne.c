@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "external_vars.h"
 #include "assembler.h"
 #include "main.h"
 
@@ -224,7 +225,7 @@ int handle_string_guidance(char* line)
 		if (end_of_line(line)) /* If there's no additional sign */
 		{
 			/* "Cutting" quotation marks and encoding it to data */
-			token[strlen(sign) - 1] = '\0';
+			sign[strlen(sign) - 1] = '\0';
 			write_string_to_data(sign + 1);
 		}
 
@@ -345,6 +346,10 @@ int handle_command(int type, char* line)
 				/* encode first word of the command to memory and increase ic by the number of additional words */
 				encode_to_instructions(build_first_word(type, is_first, is_second, first_method, second_method, first_register, second_register));
 				ic += calculate_command_num_additional_words(is_first, is_second, first_method, second_method);//////////////////////////////////////////////need to edjust the method
+				if (first_method = METHOD_IMMEDIATE)
+					build_additional_word_first_pass(first_operand);
+				else if (second_method = METHOD_IMMEDIATE)
+					build_additional_word_first_pass(second_operand);
 			}
 
 			else
@@ -366,7 +371,7 @@ int handle_command(int type, char* line)
 
 void write_num_to_data(int num)
 {
-	data[dc++] = (unsigned int)num;
+	data[dc++] = (unsigned char[3])num;
 }
 
 
@@ -566,15 +571,31 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
 }
 
 
+unsigned int build_additional_word_first_pass(int operand)
+{
+	unsigned char word[3] = EMPTY_WORD; /* An empty word */
+	word = (unsigned int)atoi(operand + 1);
+
+
+
+}
+
+
+unsigned int word = EMPTY_WORD; /* An empty word */
+
+	word = (unsigned int)atoi(operand + 1);
+	word = insert_are(word, ABSOLUTE);
+	encode_to_instructions(word);
+	break;
+
+
+
 /* This function calculates number of additional words for a command */
 int calculate_command_num_additional_words(int is_first, int is_second, int first_method, int second_method)
 {
 	int count = 0;
 	if (is_first) count += num_words(first_method);
 	if (is_second) count += num_words(second_method);
-
-	/* If both methods are register, they will share the same additional word */
-	if (is_first && is_second && first_method == METHOD_REGISTER && second_method == METHOD_REGISTER) count--;
 
 	return count;
 }
@@ -584,12 +605,8 @@ int calculate_command_num_additional_words(int is_first, int is_second, int firs
 /* This function returns how many additional words an addressing method requires */
 int num_words(int method)
 {
-	if (method == METHOD_IMMEDIATE)
+	if (method == METHOD_IMMEDIATE || METHOD_DIRECT || METHOD_RELATIVE)
 		return 1;
-	if (method == METHOD_DIRECT)
-		return 1;
-	if (method == METHOD_IMMEDIATE)
-		return 1;
-	if (method == METHOD_DIRECT)
-		return 1;
+	else /*in case the methid is REGISTER*/
+		return 0;
 }
