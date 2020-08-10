@@ -261,6 +261,7 @@ int encode_additional_words(char* src, char* dest, boolean is_src, boolean is_de
 	return is_error();
 }
 
+
 /* This function encodes a given label (by name) to memory */
 void encode_label(char* label)
 {
