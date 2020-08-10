@@ -45,7 +45,7 @@ void line_pass_two(char* line) {
 		copy_sign(current_sign, line);
 	}
 
-	if ((guidence_type = find_guidence(current_sign)) != NOT_FOUND) /* We need to handle only .entry directive */
+	if ((guidence_type = find_guidence(current_sign)) != NO_MATCH) /* We need to handle only .entry directive */
 	{
 		line = next_sign(line);
 			if (guidence_type == ENTRY)
@@ -55,7 +55,7 @@ void line_pass_two(char* line) {
 			}
 	}
 
-	else if ((command_type = find_command(current_sign)) != NOT_FOUND) /* Encoding command's additional words if necessary */
+	else if ((command_type = find_command(current_sign)) != NO_MATCH) /* Encoding command's additional words if necessary */
 	{
 		line = next_sign(line);
 		handle_command_pass_two(command_type, line);
@@ -261,6 +261,7 @@ int encode_additional_words(char* src, char* dest, boolean is_src, boolean is_de
 	return is_error();
 }
 
+
 /* This function encodes a given label (by name) to memory */
 void encode_label(char* label)
 {
@@ -315,16 +316,10 @@ void encode_additional_word(boolean is_dest, int method, char* operand)
 
 	switch (method)
 	{
-	case METHOD_IMMEDIATE: /* Extracting immediate number */
-		word = (unsigned int)atoi(operand + 1);
-		word = insert_are(word, ABSOLUTE);
-		encode_to_instructions(word);
-		break;
-
 	case METHOD_DIRECT:
 		encode_label(operand);
 		break;
-	//need to update func
+
 	case METHOD_RELATIVE:
 		encode_label_relative(operand);
 		break;

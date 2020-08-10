@@ -154,7 +154,7 @@ int handle_guidance(int guidance_type, char* line)
 		/* Handle .extern directive */
 		return handle_extern_guidance(line);
 	}
-	return NO_ERROR;
+	return EMPTY_ERROR;
 }
 
 
@@ -210,7 +210,7 @@ int handle_data_guidance(char* line)
 		error = DATA_UNEXPECTED_COMMA;
 		return ERROR;
 	}
-	return NO_ERROR;
+	return EMPTY_ERROR;
 }
 
 
@@ -243,7 +243,7 @@ int handle_string_guidance(char* line)
 		return ERROR;
 	}
 
-	return NO_ERROR;
+	return EMPTY_ERROR;
 }
 
 /* This function handles an .extern guidance */
@@ -272,7 +272,7 @@ int handle_extern_guidance(char* line)
 	}
 
 	/* Trying to add the label to the symbols table */
-	if (add_label(&symbols_table, sign, EXTERNAL_DEFAULT_ADDRESS, TRUE) == NULL)
+	if (add_label(&symbols_table, sign, 1, TRUE) == NULL)
 		return ERROR;
 	return if_error(); /* Error code might be 1 if there was an error in is_label() */
 }
@@ -367,25 +367,20 @@ int handle_command(int type, char* line)
 		}
 	}
 
-	return NO_ERROR;
+	return EMPTY_ERROR;
 }
-
 
 void write_num_to_data(int num)
 {
 	data[dc++] = (unsigned char[3])num;
 }
 
-
-
-
-
 /* This function tries to find the addressing method of a given operand and returns -1 if it was not found */
 int detect_method(char* operand)
 {
 
 	if (end_of_line(operand))
-		return NOT_FOUND;
+		return NO_MATCH;
 
 	/*----- Immediate addressing method check -----*/
 	if (*operand == '#') { /* First character is '#' */
@@ -398,7 +393,7 @@ int detect_method(char* operand)
 	else if (is_label(operand, FALSE)) /* Checking if it's a label when there shouldn't be a colon (:) at the end */
 		return METHOD_DIRECT;
 
-
+	/*----- Relative addressing method check ----- */
 	else if (*operand == '&') {
 		operand++;
 		if (is_label(operand, FALSE))
@@ -410,18 +405,9 @@ int detect_method(char* operand)
 	else if (is_register(operand))
 		return METHOD_REGISTER;
 
-
-	/*...*/
-	//else if (is_register(operand))/*creat a method_relative*/
-		//return METHOD_REGISTER;
-
-
-
 	error = COMMAND_INVALID_METHOD;
-	return NOT_FOUND;
+	return NO_MATCH;
 }
-
-
 
 /* This function checks for the validity of given methods according to the opcode */
 boolean command_accept_num_operands(int type, boolean first, boolean second)

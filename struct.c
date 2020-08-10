@@ -10,7 +10,7 @@ labelPtr add_label(labelPtr* lptr, char* name, unsigned int address, boolean ext
 
 	if (is_existing_label(*lptr, name))
 	{
-		err = LABEL_ALREADY_EXISTS;
+		error = LABEL_ALREADY_EXISTS;
 		return NULL;
 	}
 	temp = (labelPtr)malloc(sizeof(Labels));
@@ -65,7 +65,7 @@ int make_entry(labelPtr l, char* name) {
 	{
 		if (label->external)
 		{
-			err = ENTRY_CANT_BE_EXTERN; /*add to error list*/
+			error = ENTRY_CANT_BE_EXTERN; /*add to error list*/
 			return FALSE;
 		}
 		label->entry = TRUE;
@@ -73,7 +73,7 @@ int make_entry(labelPtr l, char* name) {
 		return TRUE;
 	}
 	else
-		err = ENTRY_LABEL_DOES_NOT_EXIST;/*add to error list*/
+		error = ENTRY_LABEL_DOES_NOT_EXIST;/*add to error list*/
 	return FALSE;
 }
 
