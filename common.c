@@ -267,13 +267,51 @@ int find_command_funct(char* sign)
 
 char* next_list_sign(char* dest, char* line)
 {
+	char* temp = dest;
 
+	if (end_of_line(line)) /* If the given line is empty, copy an empty sign */
+	{
+		dest[0] = '\0';
+		return NULL;
+	}
+
+	if (isspace(*line)) /* If there are spaces in the beginning of the sign, skip them */
+		line = skip_spaces(line);
+
+	if (*line == ',') /* A comma deserves a separate, single-character sign */
+	{
+		strcpy(dest, ",");
+		return ++line;
+	}
+
+	/* Manually copying sign until a ',', whitespace or end of line */
+	while (!end_of_line(line) && *line != ',' && !isspace(*line))
+	{
+		*temp = *line;
+		temp++;
+		line++;
+	}
+	*temp = '\0';
+
+	return line;
 }
 
 
 boolean is_number(char* seq)
 {
+	if (end_of_line(seq)) return FALSE;
+	if (*seq == '+' || *seq == '-') /* a number can contain a plus or minus sign */
+	{
+		seq++;
+		if (!isdigit(*seq++)) return FALSE; /* but not only a sign */
+	}
 
+	/* Check that the rest of the token is made of digits */
+	while (!end_of_line(seq))
+	{
+		if (!isdigit(*seq++)) return FALSE;
+	}
+	return TRUE;
 }
 
 
@@ -294,18 +332,40 @@ char* next_sign_string(char* dest, char* line)
 }
 
 
+/* This function checks if a given sequence is a valid string (wrapped with "") */
 boolean is_string(char* string)
 {
+	if (string == NULL) return FALSE;
 
+	if (*string == '"') /* starts with " */
+		string++;
+	else
+		return FALSE;
+
+	while (*string && *string != '"') { /* Goes until end of string */
+		string++;
+	}
+
+	if (*string != '"') /* a string must end with " */
+		return FALSE;
+
+	string++;
+	if (*string != '\0') /* string token must end after the ending " */
+		return FALSE;
+
+	return TRUE;
 }
 
 
 /* This function encodes a given string to data */
 void write_string_to_data(char* str)
 {
-
-
-
+	while (!end_of_line(str))
+	{
+		data[dc++] = (unsigned int)*str; /* Inserting a character to data array */
+		str++;
+	}
+	data[dc++] = '\0'; /* Insert a null character to data */
 }
 /*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
