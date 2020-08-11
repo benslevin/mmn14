@@ -1,4 +1,7 @@
 #include "main.h"
+#include "external_vars.h"
+#include "passFunctions.h"
+#include "common.h"
 
 
 /* List of avaiable commands */
@@ -7,11 +10,15 @@ const char* commands[] = { "mov", "cmp", "add", "sub", "lea", "clr", "not", "inc
 /* List of avaiable guidance */
 const char* guidence[] = {".data", ".string", ".entry", ".extern"};
 
-unsigned int data[MACHINE_RAM];
-unsigned int instructions[MACHINE_RAM];
+/* Declaring global vars (extern vars) */
+unsigned int data[MAX_WORDS];
+unsigned int instructions[MAX_WORDS];
 int ic;
 int dc;
 int error;
+labelPtr symbols_table;
+extPtr ext_list;
+boolean entry_exists, extern_exists, error_exist;
 
 /* The fucnction that resets all flags for next file */
 void reset_falgs() {

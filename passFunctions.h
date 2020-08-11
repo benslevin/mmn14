@@ -1,4 +1,5 @@
-
+#include "main.h"
+#include "struct.h"
 /*This file includes all the functions from the passes*/
 
 

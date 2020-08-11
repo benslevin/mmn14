@@ -1,6 +1,9 @@
+#include "main.h"
 #include "external_vars.h"
+#include "passFuctions.h"
 #include "common.h"
-#include "struct.h"
+
+
 
 /* The function for the second pass of the file */
 void passTwo(FILE* fp, char* filename) {
@@ -51,7 +54,7 @@ void line_pass_two(char* line) {
 			if (guidence_type == ENTRY)
 			{
 				copy_sign(current_sign, line);
-//				make_entry(symbols_table, current_sign); /* write the command*/
+				make_entry(symbols_table, current_sign); 
 			}
 	}
 

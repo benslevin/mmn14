@@ -5,8 +5,7 @@ extern unsigned int instructions[];
 
 typedef enum {FALSE, TRUE} boolean;
 
-/*Creating a linked list for a label table*/
-
+/* Creating a linked list for a label table */
 typedef struct structLabels* labelPtr;
 typedef struct structLabels {
 	char name[MAX_LABEL];/* The name of the label */
@@ -18,7 +17,7 @@ typedef struct structLabels {
 	labelPtr next;/* A pointer to the next label in the list */
 } Labels;
 
-
+/*Creating a two-way linked list for extern labels */
 typedef struct ext* extPtr;
 typedef struct ext {
 	char name[MAX_LABEL]; /* The name of the extern label */

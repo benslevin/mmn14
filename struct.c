@@ -1,5 +1,6 @@
-#include "struct.h"
-
+#include "main.h"
+#include "common.h"
+#include "external_vars.h"
 
 labelPtr add_label(labelPtr* lptr, char* name, unsigned int address, boolean external, ...) {
 
@@ -53,7 +54,6 @@ labelPtr add_label(labelPtr* lptr, char* name, unsigned int address, boolean ext
 	va_end(p);
 	return temp;
 }
-
 
 void offset_address(labelPtr l, char* name, boolean is_data) {
 

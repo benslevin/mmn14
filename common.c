@@ -1,7 +1,7 @@
 #include "main.h"
-#include "struct.h"
-#include <stdio.h>
-#include <ctype.h>
+#include "external_vars.h"
+#include "passFunctions.h"
+#include "common.h"
 
 /*********functions for main**********/
 

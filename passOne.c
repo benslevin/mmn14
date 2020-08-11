@@ -1,11 +1,8 @@
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
-#include <stdlib.h>
-
-#include "external_vars.h"
-#include "assembler.h"
 #include "main.h"
+#include "external_vars.h"
+#include "passFuctions.h"
+#include "common.h"
+
 
 
 

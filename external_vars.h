@@ -1,7 +1,5 @@
-
-#include "structs.h"
 #include "main.h"
-
+#include "structs.h"
 
 extern int ic, dc;
 extern int error;
