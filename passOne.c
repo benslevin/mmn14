@@ -337,7 +337,7 @@ int handle_command(int type, char* line)
 
 
 
-	if (!is_error()) /* If there was no error while trying to parse addressing methods */
+	if (!if_error()) /* If there was no error while trying to parse addressing methods */
 	{
 		if (command_accept_num_operands(type, is_first, is_second)) /* If number of operands is valid for this specific command */
 		{

@@ -258,7 +258,7 @@ int encode_additional_words(char* src, char* dest, boolean is_src, boolean is_de
 		if (is_dest) 
 			encode_additional_word(TRUE, dest_method, dest);
 	}
-	return is_error();
+	return if_error();
 }
 
 

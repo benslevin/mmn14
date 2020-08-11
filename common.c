@@ -8,7 +8,7 @@
 /* This function creates a file name by the name it recives from the user */
 char* create_file_name(char* original, int type)
 {
-	char* modified = (char*)malloc(strlen(original) + MAX_EXTENSION_LENGTH);
+	char* modified = (char*)malloc(strlen(original) + 4); /*Add space for the part after the "."*/
 	if (modified == NULL)
 	{
 		fprintf(stderr, "Couldn't allocate memory.");
@@ -187,8 +187,6 @@ char* next_sign(char* ch, char * line)
 	return line;
 }
 
-
-
 /* Check if a token matches a register name */
 boolean is_register(char* sign)
 {
@@ -212,9 +210,6 @@ int find_reg_number(char* sign)
 	}
 	else return 0;
 }
-
-
-
 
 /* This function finds an index of a string in an array of strings */
 int find_index(char* sign, const char* arr[], int n)
@@ -262,8 +257,6 @@ int find_command_funct(char* sign)
 		enum_index = find_index(sign, commands_funct, 9); /*we have a total of 16 commands*/
 	return enum_index;
 }
-/*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
-
 
 char* next_list_sign(char* dest, char* line)
 {
@@ -296,7 +289,6 @@ char* next_list_sign(char* dest, char* line)
 	return line;
 }
 
-
 boolean is_number(char* seq)
 {
 	if (end_of_line(seq)) return FALSE;
@@ -314,7 +306,6 @@ boolean is_number(char* seq)
 	return TRUE;
 }
 
-
 /* This function copies supposedly next string into dest array and returning a pointer to the
  * first character after it
  */
@@ -330,7 +321,6 @@ char* next_sign_string(char* dest, char* line)
 	}
 	return line;
 }
-
 
 /* This function checks if a given sequence is a valid string (wrapped with "") */
 boolean is_string(char* string)
@@ -367,10 +357,9 @@ void write_string_to_data(char* str)
 	}
 	data[dc++] = '\0'; /* Insert a null character to data */
 }
-/*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
+
 
 /*********functions for word**********/
-
 /* This function inserts a given word to instructions memory */
 void encode_to_instructions(unsigned char word[3])
 {
