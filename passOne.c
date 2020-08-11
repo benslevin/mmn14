@@ -285,6 +285,7 @@ int handle_command(int type, char* line)
 	boolean is_second = FALSE; /* These booleans will tell which of the operands were received (not by source/dest, but by order) */
 	int first_method, second_method; /* These will hold the addressing methods of the operands */
 	char first_operand[20], second_operand[20]; /* These strings will hold the operands */
+	char *point_first = first_op, *point_second = second_op; /*This will hold pointers to the first and teh seconed operands*/
 
 	boolean is_first_register = FALSE;
 	boolean is_second_register = FALSE;
@@ -317,6 +318,7 @@ int handle_command(int type, char* line)
 			}
 		}
 	}
+
 	line = skip_spaces(line);
 	if (!end_of_line(line)) /* If the line continues after two operands */
 	{
@@ -347,9 +349,9 @@ int handle_command(int type, char* line)
 				encode_to_instructions(build_first_word(type, is_first, is_second, first_method, second_method, first_register, second_register));
 				ic += calculate_command_num_additional_words(is_first, is_second, first_method, second_method);//////////////////////////////////////////////need to edjust the method
 				if (first_method = METHOD_IMMEDIATE)
-					build_additional_word_first_pass(first_operand);
+					encode_to_instructions(build_additional_word_first_pass(point_first);)
 				else if (second_method = METHOD_IMMEDIATE)
-					build_additional_word_first_pass(second_operand);
+					encode_to_instructions(build_additional_word_first_pass(point_second);)
 			}
 
 			else
@@ -557,25 +559,21 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
 }
 
 
-unsigned int build_additional_word_first_pass(int operand)
+unsigned int build_additional_word_first_pass(char *operand)
 {
-	unsigned char word[3] = 0; /* An empty word */
-	word = (unsigned int)atoi(operand + 1);
+	unsigned char word[3] = EMPTY_WORD; /* An empty word */
+	unsigned int temp;
 
+	temp = (unsigned int)atoi(operand + 1);
+	word |= temp;
 
+	word <<= ARE_BITS;
 
+	word |= ABSOLUTE;
 }
 
-
-unsigned int word = EMPTY_WORD; /* An empty word */
-
-	word = (unsigned int)atoi(operand + 1);
-	word = insert_are(word, ABSOLUTE);
-	encode_to_instructions(word);
-	break;
-
-
-
+		
+	    
 /* This function calculates number of additional words for a command */
 int calculate_command_num_additional_words(int is_first, int is_second, int first_method, int second_method)
 {
