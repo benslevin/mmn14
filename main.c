@@ -12,7 +12,7 @@ const char* guidence[] = {".data", ".string", ".entry", ".extern"};
 
 /* Declaring global vars (extern vars) */
 unsigned int data[MAX_WORDS];
-unsigned int instructions[MAX_WORDS];
+unsigned char instructions[MAX_WORDS];
 int ic;
 int dc;
 int error;

@@ -508,7 +508,7 @@ boolean command_accept_methods(int type, int first_method, int second_method)
 }
 
 /* This function encodes the first word of the command */
-unsigned int build_first_word(int type, int is_first, int is_second, int first_method, int second_method, int first_register, int second_register)
+unsigned char *build_first_word(int type, int is_first, int is_second, int first_method, int second_method, int first_register, int second_register)
 {
 	int funct = 0;
 	funct = detect_funct(type, funct);
@@ -556,7 +556,7 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
 }
 
 
-unsigned int build_additional_word_first_pass(char *operand)
+unsigned char *build_additional_word_first_pass(char *operand)
 {
 	unsigned char word[3] = EMPTY_WORD; /* An empty word */
 	unsigned int temp;
@@ -567,6 +567,8 @@ unsigned int build_additional_word_first_pass(char *operand)
 	word <<= ARE_BITS;
 
 	word |= ABSOLUTE;
+
+	return word;
 }
 
 		
