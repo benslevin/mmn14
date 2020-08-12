@@ -561,6 +561,7 @@ unsigned char *build_additional_word_first_pass(char *operand)
 	unsigned char word[3] = EMPTY_WORD; /* An empty word */
 	unsigned int temp;
 
+
 	temp = (unsigned int)atoi(operand + 1);
 	word |= temp;
 
