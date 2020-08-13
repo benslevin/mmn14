@@ -5,10 +5,10 @@
 
 
 /* List of avaiable commands */
-const char* commands[] = { "mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp", "bne","jsr", "red", "prn", "rts", "stop"};
+const char* commands[] = { "mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp", "bne","jsr", "red", "prn", "rts", "stop" };
 
 /* List of avaiable guidance */
-const char* guidence[] = {".data", ".string", ".entry", ".extern"};
+const char* guidance[] = { ".data", ".string", ".entry", ".extern" };
 
 /* Declaring global vars (extern vars) */
 unsigned int data[MAX_WORDS];
@@ -21,7 +21,7 @@ extPtr ext_list;
 boolean entry_exists, extern_exists, error_exist;
 
 /* The fucnction that resets all flags for next file */
-void reset_falgs() {
+void reset_flags() {
     symbols_table = NULL;
     ext_list = NULL;
 
@@ -31,9 +31,10 @@ void reset_falgs() {
 }
 
 /* The main function of the program */
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[]) {
 
     int i;
+    char* fileName;
     FILE* fp;
     if (argc < 2) {
         fprintf(stdout, "No argument found, please enter a file name to process\n");
@@ -41,7 +42,7 @@ int main(int argc, char* argv[]){
     }
     else {
         for (i = 1; i < argc; i++) {
-            create_file_name(argv[i]); /* Uses the file name given in the command line */
+            create_file_name(argv[i], FILE_INPUT); /* Uses the file name given in the command line */
             if ((fp = fopen(argv[i], "r")) == NULL) { /* Open the file with reading permision */
                 fprintf(stderr, "\nAn error occured while opening the file: %s\n", fileName);
             }
@@ -61,7 +62,7 @@ int main(int argc, char* argv[]){
                     else {/* First pass contains errors, stop processing the file */
                         fprintf(stdout, "Errors found in file: %s, stoped working on file", fileName);
                     }
-                    
+
                     fprintf(stdout, "*******Finished working on file: %s*******", fileName);
                     fclose(fp); /* Close file */
                 }
@@ -70,3 +71,4 @@ int main(int argc, char* argv[]){
     }
     return 0;
 }
+
