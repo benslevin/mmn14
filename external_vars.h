@@ -1,5 +1,10 @@
+#ifndef external_vars_h
+
+#define external_vars_h
+
+
 #include "main.h"
-#include "structs.h"
+#include "struct.h"
 
 extern int ic, dc;
 extern int error;
@@ -9,3 +14,5 @@ extern extPtr ext_list;
 extern const char* commands[];
 extern const char* guidence[];
 extern boolean entry_exists, extern_exists;
+
+#endif
