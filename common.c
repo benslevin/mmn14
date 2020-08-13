@@ -220,12 +220,12 @@ int find_index(char* sign, const char* arr[], int n)
 }
 
 /* Check if a token matches a directive name */
-int find_guidence(char* sign)
+int find_guidance(char* sign)
 {
 	if (sign == NULL || *sign != '.') {
 		return NO_MATCH;
-	}/*we have 4 guidence commands, check index number in enum*/
-	return find_index(sign, guidence, 4);
+	}/*we have 4 guidance commands, check index number in enum*/
+	return find_index(sign, guidance, 4);
 }
 
 /* Check if a sign matches a command name */
@@ -239,20 +239,6 @@ int find_command(char* sign)
 		enum_index = find_index(sign, commands, 16); /*we have a total of 16 commands*/
 	return enum_index;
 }
-
-/*
-/* Check if a sign matches a command funct name 
-int find_command_funct(char* sign)
-{
-	int enum_index;
-	int sign_len = strlen(sign);
-	if (sign_len != 3)/*a command is between 3 and 4 chars
-		return NO_MATCH;
-	else
-		enum_index = find_index(sign, command_funct, 9); /*we have a total of 16 commands
-	return enum_index;
-}
-*/
 
 char* next_list_sign(char* dest, char* line)
 {
@@ -308,7 +294,7 @@ boolean is_number(char* seq)
 char* next_sign_string(char* dest, char* line)
 {
 	char temp[MAX_INPUT];
-	line = next_list_token(dest, line);//creat function 
+	line = next_list_token(dest, line);/*creat function */
 	if (*dest != '"') return line;
 	while (!end_of_line(line) && dest[strlen(dest) - 1] != '"')
 	{
@@ -357,7 +343,7 @@ void write_string_to_data(char* str)
 
 /*********functions for word**********/
 /* This function inserts a given word to instructions memory */
-void encode_to_instructions(unsigned char word[3])
+void encode_to_instructions(unsigned int word)
 {
 	instructions[ic++] = word;
 }
@@ -403,12 +389,12 @@ void write_error(int line_number) {
 		break;
 
 	case INVALID_LABEL_LINE:
-		fprintf(stderr, "label must be followed by a command or guidence.\n");
+		fprintf(stderr, "label must be followed by a command or guidance.\n");
 
 		break;
 
 	case NO_PARAMETER_AVAILABLE:
-		fprintf(stderr, "guidence must have parameters.\n");
+		fprintf(stderr, "guidance must have parameters.\n");
 
 		break;
 
@@ -463,7 +449,7 @@ void write_error(int line_number) {
 		break;
 
 	case MISSING_SYNTAX:
-		fprintf(stderr, "invalid command or guidence.\n");
+		fprintf(stderr, "invalid command or guidance.\n");
 
 		break;
 
