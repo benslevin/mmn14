@@ -1,9 +1,15 @@
+#ifndef main_h
+
+#define main_h
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
 #include <math.h>
+
+
 
 //This file includes values and enums for the entire program
 
@@ -18,6 +24,7 @@
 #define NO_MATCH -1 /*no match for comparison*/
 #define NUM 50
 #define MAX_WORDS 500
+#define UNKNOWN_FUNCT 0
 
 /****************************Limits*******************************/
 
@@ -46,10 +53,10 @@
 enum guidance { DATA, STRING, ENTRY, EXTERN, UNKNOWN_TYPE };
 
 /* Enum of commands ordered by their opcode */
-enum commands { MOV=0, CMP=1, ADD=2, SUB=2, LEA=4, CLR=5, NOT=5, INC=5, DEC=5, JMP=9, BNE=9, JSR = 9, RED=12, PRN=13, RTS=14, STOP=15, UNKNOWN_COMMAND };
+enum commands { MOV, CMP, ADD, SUB, LEA, CLR, NOT, INC, DEC, JMP, BNE, JSR, RED, PRN, RTS, STOP, UNKNOWN_COMMAND };
 
 /* Enum of commands funct */
-enum commands_funct { ADD = 1, SUB = 2, CLR = 1, NOT = 2, INC = 3, DEC = 4, JMP = 1, BNE = 2, JSR = 3 , UNKNOWN_FUNCT=10};
+//enum commands_funct { ADD, SUB, CLR, NOT, INC, DEC, JMP, BNE, JSR, UNKNOWN_FUNCT = 10 };
 
 /* Enum of file types to create */
 enum filetype { FILE_INPUT, FILE_OBJECT, FILE_ENTRY, FILE_EXTERN };
@@ -62,7 +69,7 @@ enum methods { METHOD_IMMEDIATE, METHOD_DIRECT, METHOD_RELATIVE, METHOD_REGISTER
 
 /* To identify a label */
 enum { NO_COLON, COLON };
- 
+
 /* Errors */
 enum errors {
     INVALID_SYNTAX = 1, INVALID_LABEL_LINE, MISSING_SYNTAX, NO_PARAMETER_AVAILABLE, GUIDANCE_INVALID_NUM_PARAMS, DATA_EXPECTED_NUM,
@@ -73,4 +80,4 @@ enum errors {
     ENTRY_LABEL_DOES_NOT_EXIST
 };
 
-
+#endif
