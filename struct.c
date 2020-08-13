@@ -1,3 +1,4 @@
+
 #include "main.h"
 #include "common.h"
 #include "external_vars.h"
@@ -55,8 +56,18 @@ labelPtr add_label(labelPtr* lptr, char* name, unsigned int address, boolean ext
 	return temp;
 }
 
-void offset_address(labelPtr l, char* name, boolean is_data) {
-
+void offset_address(labelPtr l, int num, boolean is_data) {
+	while (l)
+	{
+		/* We don't offset external labels (their address is 0). */
+		/* is_data and inActionStatement must have different values in order to meet the same criteria
+		 * and the XOR operator gives us that */
+		if (!(l->external) && (is_data ^ (l->inActionStatement)))
+		{
+			l->address += num;
+		}
+		l = l->next;
+	}
 }
 
 int make_entry(labelPtr l, char* name) {
@@ -80,7 +91,7 @@ int make_entry(labelPtr l, char* name) {
 unsigned int get_label_address(labelPtr l, char* name) {
 	labelPtr label = get_label(l, name);
 	if (get_label != NULL) {
-		return (l -> address);
+		return (l->address);
 	}
 	else return FALSE;
 }
@@ -88,14 +99,14 @@ unsigned int get_label_address(labelPtr l, char* name) {
 boolean is_external_label(labelPtr l, char* name) {
 	labelPtr label = get_label(l, name);
 	if (get_label != NULL) {
-		return (l -> external);
+		return (l->external);
 	}
 	else return FALSE;
 }
 
 boolean is_existing_label(labelPtr l, char* name) {
-	
-	if(get_label(l, name) != NULL)
+
+	if (get_label(l, name) != NULL)
 		return TRUE;
 
 }
@@ -112,13 +123,13 @@ labelPtr get_label(labelPtr l, char* name) {
 
 
 /* Free the label list by going over each label and free it */
-void free_label_table(labelPtr *lptr) {
+void free_label_table(labelPtr* lptr) {
 
 	labelPtr temp;
 	while (*lptr)
 	{
 		temp = *lptr;
-		*hptr = (*lptr) -> next;
+		*lptr = (*lptr)->next;
 		free(temp);
 	}
 }
@@ -132,7 +143,7 @@ int delete_label(labelPtr* lptr, char* name)
 	while (temp) {
 		if (strcmp(temp->name, name) == 0) {
 			if (strcmp(temp->name, (*lptr)->name) == 0) {
-				*hptr = (*lptr)->next;
+				*lptr = (*lptr)->next;
 				free(temp);
 			}
 			else {
@@ -160,4 +171,3 @@ void print_labels(labelPtr l) {
 	}
 	printf("*");
 }
-
