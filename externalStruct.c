@@ -64,4 +64,3 @@ void print_ext(extPtr l)
     } while (l->address != orig->address);
     printf("*\n");
 }
-
