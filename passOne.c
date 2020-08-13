@@ -42,7 +42,6 @@ void  line_pass_one(char* line)
 	/* Initializing variables for the type of the directive/command */
 	int guidance_type = UNKNOWN_TYPE;
 	int command_type = UNKNOWN_COMMAND;
-	int funct_type = UNKNOWN_FUNCT;
 	boolean label = FALSE; /* This variable will hold TRUE if a label exists in this line */
 	labelPtr label_node = NULL; /* This variable holds optional label in case we need to create it */
 	char current_sign[MAX_INPUT]; /* This string will hold the current sign if we analyze it */
@@ -73,7 +72,7 @@ void  line_pass_one(char* line)
 		copy_sign(current_sign, line);/*after we get the next the next word or symbol we continue with the proccess*/
 	}
 
-	if (if_error())/*in case the first pass for label search returns an error*/
+	if (if_error()) {}/*in case the first pass for label search returns an error*/
 
 		if ((guidance_type = find_guidance(current_sign)) != NO_MATCH) /*in case the sign is a guidance*/
 		{
@@ -98,7 +97,7 @@ void  line_pass_one(char* line)
 			if (label != 0)
 			{
 				/* Setting fields accordingly in label */
-				//label_node->dataStorageStatment = TRUE;
+				label_node->inActionStatement = TRUE;
 				strcpy(label_node->symbol_type,"code");
 				label_node->address = ic;/* Address of data label is ic */
 			}
@@ -270,7 +269,7 @@ int handle_extern_guidance(char* line)
 	return if_error(); /* Error code might be 1 if there was an error in is_label() */
 }
 
-//------------------------------------------------------------------------------------------------//
+/*------------------------------------------------------------------------------------------------*/
 
 int handle_command(int type, char* line)
 {
@@ -279,8 +278,6 @@ int handle_command(int type, char* line)
 	int first_method, second_method; /* These will hold the addressing methods of the operands */
 	char first_operand[20], second_operand[20]; /* These strings will hold the operands */
 
-	boolean is_first_register = FALSE;
-	boolean is_second_register = FALSE;
 	int first_register = 0;
 	int second_register = 0;
 
@@ -318,14 +315,14 @@ int handle_command(int type, char* line)
 		return ERROR;
 	}
 
-	if (is_first == TRUE)
+	if ((is_first == TRUE))
 		first_method = detect_method(first_operand); /* Detect addressing method of first operand */
-	if (is_second == TRUE)
+	if ((is_second == TRUE))
 		second_method = detect_method(second_operand); /* Detect addressing method of second operand */
 
-	if (first_method = METHOD_REGISTER)
+	if ((first_method = METHOD_REGISTER))
 		first_register = find_reg_number(first_operand);
-	if (second_method = METHOD_REGISTER)
+	if ((second_method = METHOD_REGISTER))
 		second_register = find_reg_number(second_operand);
 
 
@@ -339,10 +336,10 @@ int handle_command(int type, char* line)
 			{
 				/* encode first word of the command to memory and increase ic by the number of additional words */
 				encode_to_instructions(build_first_word(type, is_first, is_second, first_method, second_method, first_register, second_register));
-				ic += calculate_command_num_additional_words(is_first, is_second, first_method, second_method);//////////////////////////////////////////////need to edjust the method
-				if (first_method = METHOD_IMMEDIATE)
+				ic += calculate_command_num_additional_words(is_first, is_second, first_method, second_method);
+				if ((first_method = METHOD_IMMEDIATE)) 
 					encode_to_instructions(build_additional_word_first_pass(first_operand));
-				else if (second_method = METHOD_IMMEDIATE)
+				else if ((second_method = METHOD_IMMEDIATE)) 
 					encode_to_instructions(build_additional_word_first_pass(second_operand));
 			}
 
@@ -503,12 +500,11 @@ boolean command_accept_methods(int type, int first_method, int second_method)
 }
 
 /* This function encodes the first word of the command */
-unsigned char* build_first_word(int type, int is_first, int is_second, int first_method, int second_method, int first_register, int second_register)
+unsigned int build_first_word(int type, int is_first, int is_second, int first_method, int second_method, int first_register, int second_register)
 {
+	unsigned int word = 0;
 	int funct = 0;
 	funct = command_funct(type);
-
-	unsigned int word = 0;
 
 	/* Inserting the opcode */
 	word |= type;
@@ -544,8 +540,6 @@ unsigned char* build_first_word(int type, int is_first, int is_second, int first
 	word <<= ARE_BITS; /*Leave space for ARE bits*/
 
 	word |= ABSOLUTE;
-
-	//word = insert_are(word, ABSOLUTE); /* Insert A/R/E mode to the word */
 
 	return word;
 }
