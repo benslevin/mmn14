@@ -1,3 +1,7 @@
+#ifndef common_H
+
+#define common_H
+
 #include "main.h"
 #include "struct.h"
 
@@ -5,14 +9,14 @@
 
 /* Functions from common.c */
 char* create_file_name(char* original, int type);
-void ignore_line(char* line);
+int ignore_line(char* line);
 int if_error();
 char* skip_spaces(char* ch);
 int end_of_line(char* line);
 void copy_sign(char* destination, char* line);
-unsigned int extract_bits(unsigned char word[3], int start, int end);
+unsigned int extract_bits(unsigned int word, int start, int end);
 boolean is_label(char* sign, int colon);
-char* next_sign(char* ch, char* line);
+char* next_sign(char* seq);
 boolean is_register(char* sign);
 int find_reg_number(char* sign);
 int find_index(char* sign, const char* arr[], int n);
@@ -29,6 +33,7 @@ void write_error(int line_number);
 
 /* Functions from struct.c */
 labelPtr add_label(labelPtr* lptr, char* name, unsigned int address, boolean external, ...);
+void offset_address(labelPtr l, int num, boolean is_data);
 int make_entry(labelPtr l, char* name);
 unsigned int get_label_address(labelPtr l, char* name);
 boolean is_external_label(labelPtr l, char* name);
@@ -42,3 +47,5 @@ void print_labels(labelPtr l);
 extPtr add_ext(extPtr* lptr, char* name, unsigned int reference);
 void free_ext(extPtr* lptr);
 void print_ext(extPtr l);
+
+#endif
