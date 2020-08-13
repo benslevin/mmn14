@@ -1,3 +1,7 @@
+#ifndef passFunctions_h
+
+#define passFunctions_h
+
 #include "main.h"
 #include "struct.h"
 /*This file includes all the functions from the passes*/
@@ -8,7 +12,7 @@
 /*Pass one fuctions*/
 
 void passOne(FILE* fp);
-void  line_pass_one(char* line);
+void line_pass_one(char* line);
 int handle_guidance(int guidance_type, char* line);
 int handle_data_guidance(char* line);
 int handle_string_guidance(char* line);
@@ -23,7 +27,7 @@ void passTwo(FILE* fp, char* filename);
 void line_pass_two(char* line);
 void creat_output_files(char* name);
 FILE* open_file(char* filename, int type);
-void creat_object_file(FILE *fp);
+void creat_object_file(FILE* fp);
 void creat_entry_file(FILE* fp);
 void creat_external_file(FILE* fp);
 void does_operand_exists(int ope, boolean* is_source, boolean* is_destination);
@@ -32,3 +36,5 @@ int encode_additional_words(char* src, char* dest, boolean is_src, boolean is_de
 void encode_label(char* label);
 void encode_label_relative(char* label);
 void encode_additional_word(boolean is_dest, int method, char* operand);
+
+#endif
