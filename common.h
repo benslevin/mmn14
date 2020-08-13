@@ -20,15 +20,15 @@ char* next_sign(char* seq);
 boolean is_register(char* sign);
 int find_reg_number(char* sign);
 int find_index(char* sign, const char* arr[], int n);
-int find_guidence(char* sign);
+int find_guidance(char* sign);
 int find_command(char* sign);
-int find_command_funct(char* sign);
+/*int find_command_funct(char* sign);*/
 char* next_list_sign(char* dest, char* line);
 boolean is_number(char* seq);
 char* next_sign_string(char* dest, char* line);
 boolean is_string(char* string);
 void write_string_to_data(char* str);
-void encode_to_instructions(unsigned char word[3]);
+void encode_to_instructions(unsigned int word);
 void write_error(int line_number);
 
 /* Functions from struct.c */
