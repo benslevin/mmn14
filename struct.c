@@ -105,69 +105,66 @@ boolean is_external_label(labelPtr l, char* name) {
 }
 
 boolean is_existing_label(labelPtr l, char* name) {
-
-	if (get_label(l, name) != NULL)
-		return TRUE;
-
+	
+	return (get_label(l, name) != NULL);
 }
 
 labelPtr get_label(labelPtr l, char* name) {
+	
 	while (l) {
-		if (strcmp(l->name, name) == 0) {
+		if (strcmp(l->name, name) == 0)
 			return l;
-		}
-		else l = l->next;
+		l = l->next;
 	}
 	return NULL;
 }
 
 
-/* Free the label list by going over each label and free it */
-void free_label_table(labelPtr* lptr) {
-
-	labelPtr temp;
-	while (*lptr)
+	/* Free the label list by going over each label and free it */
+	void free_label_table(labelPtr * lptr) 
 	{
-		temp = *lptr;
-		*lptr = (*lptr)->next;
-		free(temp);
-	}
-}
 
-int delete_label(labelPtr* lptr, char* name)
-{
-	/* Goes over the label list and checking if a label by a given name is in the list if it is then deletes it by
-	free its space and change the previous label's pointer to point to the next label */
-	labelPtr temp = *lptr;
-	labelPtr prevtemp;
-	while (temp) {
-		if (strcmp(temp->name, name) == 0) {
-			if (strcmp(temp->name, (*lptr)->name) == 0) {
-				*lptr = (*lptr)->next;
-				free(temp);
-			}
-			else {
-				prevtemp->next = temp->next;
-				free(temp);
-			}
-			return 1;
+		labelPtr temp;
+		while (*lptr)
+		{
+			temp = *lptr;
+			*lptr = (*lptr)->next;
+			free(temp);
 		}
-		prevtemp = temp;
-		temp = temp->next;
 	}
-	return 0;
 
-}
-
-
-void print_labels(labelPtr l) {
-	while (l) {
-		printf("\nname: %s, address: %d, external: %d", l->name, l->address, l->external);
-		if (l->external == 0)
-			printf(", is in action statement: %d -> ", l->inActionStatement);
-		else
-			printf(" -> ");
-		l = l->next;
+	int delete_label(labelPtr * lptr, char* name)
+	{
+		/* Goes over the label list and checking if a label by a given name is in the list if it is then deletes it by
+		free its space and change the previous label's pointer to point to the next label */
+		labelPtr temp = *lptr;
+		labelPtr prevtemp;
+		while (temp) {
+			if (strcmp(temp->name, name) == 0) {
+				if (strcmp(temp->name, (*lptr)->name) == 0) {
+					*lptr = (*lptr)->next;
+					free(temp);
+				}
+				else {
+					prevtemp->next = temp->next;
+					free(temp);
+				}
+				return 1;
+			}
+			prevtemp = temp;
+			temp = temp->next;
+		}
+		return 0;
 	}
-	printf("*");
-}
+
+	void print_labels(labelPtr l) {
+		while (l) {
+			printf("\nname: %s, address: %d, external: %d", l->name, l->address, l->external);
+			if (l->external == 0)
+				printf(", is in action statement: %d -> ", l->inActionStatement);
+			else
+				printf(" -> ");
+			l = l->next;
+		}
+		printf("*");
+	}
