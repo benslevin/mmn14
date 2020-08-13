@@ -12,7 +12,7 @@ extern boolean error_exist;
 extern labelPtr symbols_table;
 extern extPtr ext_list;
 extern const char* commands[];
-extern const char* guidence[];
+extern const char* guidance[];
 extern boolean entry_exists, extern_exists;
 
 #endif
