@@ -44,15 +44,16 @@ char* create_file_name(char* original, int type)
 /*********functions for passes**********/
 
 /*checks if the line is empty or needs to be ignored (;)*/
-void ignore_line(char* line) {
+int ignore_line(char* line) {
 	int i = 0;
 	line = skip_spaces(line);
 	while (*line == ';' || *line == '\0') {
 		i++;
 	}
 	if (*line == '\n') {
-		return;
+		return TRUE;
 	}
+	return FALSE;
 }
 
 /*This function check if the 'error' flag was changed meaning that an error while reading the line occured*/
@@ -96,7 +97,7 @@ void copy_sign(char* destination, char* line)
 }
 
 /* This function extracts bits, given start and end positions of the bit-sequence (0 is LSB) */
-unsigned int extract_bits(unsigned char word[3], int start, int end)
+unsigned int extract_bits(unsigned int word, int start, int end)
 {
 	unsigned int result;
 	int length = SRC_METHOD_BITS; /* Length of bit-sequence */
@@ -132,7 +133,7 @@ boolean is_label(char* sign, int colon)
 		}
 		return FALSE;
 	}
-	if (!isalpha(*sign)) { 
+	if (!isalpha(*sign)) {
 		if (colon) {
 			error = LABEL_INVALID_FIRST_CHAR;/* First character must be a letter */
 		}
@@ -140,12 +141,12 @@ boolean is_label(char* sign, int colon)
 	}
 
 	if (colon) {/*remove the colon*/
-		sign[sign_len - 1] = '\0'; 
+		sign[sign_len - 1] = '\0';
 		sign_len--;
 	}
 
 	/* Check if all characters are digits or letters */
-	for (i = 0; i < sign_len; i++) 
+	for (i = 0; i < sign_len; i++)
 	{
 		if (isdigit(sign[i]))
 			has_digits = TRUE;
@@ -172,19 +173,13 @@ boolean is_label(char* sign, int colon)
 	return TRUE;
 }
 
-char* next_sign(char* ch, char * line)
+char* next_sign(char* seq)
 {
-	char temp[MAX_INPUT];
-	line = next_list_sign(ch, line);
-	if (*ch != '"') {
-		return line;
-	}
-	while (!end_of_line(line) && (ch[strlen(ch) - 1] != '"'))
-	{
-		line = next_list_sign(temp, line);
-		if (line) strcat(ch, temp);
-	}
-	return line;
+	if (seq == NULL) return NULL;
+	while (!isspace(*seq) && !end_of_line(seq)) seq++; /* Skip rest of characters in the current token (until a space) */
+	seq = skip_spaces(seq); /* Skip spaces */
+	if (end_of_line(seq)) return NULL;
+	return seq;
 }
 
 /* Check if a token matches a register name */
@@ -202,10 +197,10 @@ int find_reg_number(char* sign)
 {
 	int i;
 	/* A register must have 2 characters, the first is 'r' and the second is a number between 0-7 */
-	if (strlen(sign) == REG_LEN && sign[0] == 'r') 
+	if (strlen(sign) == REG_LEN && sign[0] == 'r')
 	{
 		for (i = MIN_REGISTER_NUM; i <= MAX_REGISTER_NUM; i++)
-			if (sing[1] == i)
+			if (sign[1] == i)
 				return i;
 	}
 	else return 0;
@@ -245,18 +240,19 @@ int find_command(char* sign)
 	return enum_index;
 }
 
-
-/* Check if a sign matches a command funct name */
+/*
+/* Check if a sign matches a command funct name 
 int find_command_funct(char* sign)
 {
 	int enum_index;
 	int sign_len = strlen(sign);
-	if (sign_len != 3)/*a command is between 3 and 4 chars*/
+	if (sign_len != 3)/*a command is between 3 and 4 chars
 		return NO_MATCH;
 	else
-		enum_index = find_index(sign, commands_funct, 9); /*we have a total of 16 commands*/
+		enum_index = find_index(sign, command_funct, 9); /*we have a total of 16 commands
 	return enum_index;
 }
+*/
 
 char* next_list_sign(char* dest, char* line)
 {
@@ -405,7 +401,7 @@ void write_error(int line_number) {
 		fprintf(stderr, "label can't have the same name as a register.\n");
 
 		break;
-		
+
 	case INVALID_LABEL_LINE:
 		fprintf(stderr, "label must be followed by a command or guidence.\n");
 
@@ -415,12 +411,12 @@ void write_error(int line_number) {
 		fprintf(stderr, "guidence must have parameters.\n");
 
 		break;
-		
+
 	case GUIDANCE_INVALID_NUM_PARAMS:
 		fprintf(stderr, "illegal number of parameters for a directive.\n");
 
 		break;
-		
+
 	case DATA_COMMAS_IN_A_ROW:
 		fprintf(stderr, "incorrect usage of commas in a .data directive.\n");
 
@@ -465,12 +461,12 @@ void write_error(int line_number) {
 		fprintf(stderr, ".extern must only have one operand that is a label.\n");
 
 		break;
-		
+
 	case MISSING_SYNTAX:
 		fprintf(stderr, "invalid command or guidence.\n");
 
 		break;
-		
+
 	case COMMAND_UNEXPECTED_CHAR:
 		fprintf(stderr, "invalid syntax of a command.\n");
 
@@ -480,12 +476,12 @@ void write_error(int line_number) {
 		fprintf(stderr, "command can't have more than 2 operands.\n");
 
 		break;
-
+/*
 	case COMMAND_INVALID_METHODS:
 		fprintf(stderr, "operand has invalid addressing method.\n");
 
 		break;
-
+*/
 	case COMMAND_INVALID_NUMBER_OF_OPERANDS:
 		fprintf(stderr, "number of operands does not match command requirements.\n");
 
@@ -514,9 +510,7 @@ void write_error(int line_number) {
 	case CANNOT_OPEN_FILE:
 		fprintf(stderr, "there was an error while trying to open the requested file.\n");
 	}
-			
+
 	/*INVALID_SYNTAX*/ /*in case the line does not starts with alpha or .*/
 	/*INVALID_LABEL_LINE*/ /*in case there is only a label in a line*/
 }
-
-
