@@ -20,6 +20,13 @@ int handle_extern_guidance(char* line);
 int handle_command(int type, char* line);
 void write_num_to_data(int num);
 int detect_method(char* operand);
+boolean command_accept_num_operands(int type, boolean first, boolean second);
+boolean command_accept_methods(int type, int first_method, int second_method);
+unsigned int build_first_word(int type, int is_first, int is_second, int first_method, int second_method, int first_register, int second_register);
+unsigned int build_additional_word_first_pass(int operand);
+int calculate_command_num_additional_words(int is_first, int is_second, int first_method, int second_method);
+int num_words(int method);
+int command_funct(int commands);
 
 /*Pass two fuctions*/
 
