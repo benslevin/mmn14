@@ -12,7 +12,7 @@ const char* guidance[] = { ".data", ".string", ".entry", ".extern" };
 
 /* Declaring global vars (extern vars) */
 unsigned int data[MAX_WORDS];
-unsigned char instructions[MAX_WORDS];
+unsigned int instructions[MAX_WORDS];
 int ic;
 int dc;
 int error;
@@ -34,7 +34,7 @@ void reset_flags() {
 int main(int argc, char* argv[]) {
 
     int i;
-    char* fileName;
+    char* fileName = {0};
     FILE* fp;
     if (argc < 2) {
         fprintf(stdout, "No argument found, please enter a file name to process\n");
