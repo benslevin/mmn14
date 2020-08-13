@@ -34,7 +34,7 @@ void passTwo(FILE* fp, char* filename) {
 
 /* The function that reads each line and checks it */
 void line_pass_two(char* line) {
-	int guidence_type, command_type;
+	int guidance_type, command_type;
 	char current_sign[MAX_INPUT];
 
 	line = skip_spaces(line);
@@ -47,10 +47,10 @@ void line_pass_two(char* line) {
 			copy_sign(current_sign, line);
 	}
 
-	if ((guidence_type = find_guidence(current_sign)) != NO_MATCH) /* We need to handle only .entry directive */
+	if ((guidance_type = find_guidance(current_sign)) != NO_MATCH) /* We need to handle only .entry directive */
 	{
 		line = next_sign(line);
-			if (guidence_type == ENTRY)
+			if (guidance_type == ENTRY)
 			{
 				copy_sign(current_sign, line);
 				make_entry(symbols_table, current_sign);
@@ -222,9 +222,9 @@ int handle_command_pass_two(int type, char* line)
 
 	/* Extracting source and destination addressing methods */
 	if (is_src)
-		src_method = extract_bits(instructions[ic], SRC_METHOD_START_POS, SRC_METHOD_END_POS);//check how to place bits
+		src_method = extract_bits(instructions[ic], SRC_METHOD_START_POS, SRC_METHOD_END_POS);/*check how to place bits*/
 	if (is_dest)
-		dest_method = extract_bits(instructions[ic], DEST_METHOD_START_POS, DEST_METHOD_END_POS);//check how to place bits
+		dest_method = extract_bits(instructions[ic], DEST_METHOD_START_POS, DEST_METHOD_END_POS);/*check how to place bits*/
 
 	/* Matching src and dest pointers to the correct operands (first or second or both) */
 	if (is_src || is_dest)
@@ -249,18 +249,10 @@ int handle_command_pass_two(int type, char* line)
 /* This function encodes the additional words of the operands to instructions memory */
 int encode_additional_words(char* src, char* dest, boolean is_src, boolean is_dest, int src_method,
 	int dest_method) {
-	/* There's a special case where 2 register operands share the same additional word */
-	if (is_src && is_dest && src_method == METHOD_REGISTER && dest_method == METHOD_REGISTER)
-	{
-		//encode_to_instructions(build_register_word(FALSE, src) | build_register_word(TRUE, dest));
-	}
-	else /* It's not the special case */
-	{
-		if (is_src)
-			encode_additional_word(FALSE, src_method, src);
-		if (is_dest)
-			encode_additional_word(TRUE, dest_method, dest);
-	}
+	if (is_src)
+		encode_additional_word(FALSE, src_method, src);
+	if (is_dest)
+		encode_additional_word(TRUE, dest_method, dest);
 	return if_error();
 }
 
@@ -295,7 +287,7 @@ void encode_label(char* label)
 
 void encode_label_relative(char* label) {
 
-	unsigned char* word = 0; /* The word to be encoded */
+	unsigned int word = 0; /* The word to be encoded */
 
 	if (label[0] == '&') {
 		label++;
@@ -315,7 +307,7 @@ void encode_label_relative(char* label) {
 /* This function encodes an additional word to instructions memory, given the addressing method */
 void encode_additional_word(boolean is_dest, int method, char* operand)
 {
-	unsigned char* word = 0; /* An empty word */
+	unsigned int word = 0; /* An empty word */
 	char* temp;
 
 	switch (method)
