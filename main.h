@@ -11,7 +11,7 @@
 
 
 
-//This file includes values and enums for the entire program
+/*This file includes values and enums for the entire program*/
 
 /****************************General values*******************************/
 
@@ -55,9 +55,10 @@ enum guidance { DATA, STRING, ENTRY, EXTERN, UNKNOWN_TYPE };
 /* Enum of commands ordered by their opcode */
 enum commands { MOV, CMP, ADD, SUB, LEA, CLR, NOT, INC, DEC, JMP, BNE, JSR, RED, PRN, RTS, STOP, UNKNOWN_COMMAND };
 
-/* Enum of commands funct */
-//enum commands_funct { ADD, SUB, CLR, NOT, INC, DEC, JMP, BNE, JSR, UNKNOWN_FUNCT = 10 };
-
+/*
+/* Enum of commands funct 
+enum commands_funct { ADD, SUB, CLR, NOT, INC, DEC, JMP, BNE, JSR, UNKNOWN_FUNCT = 10 };
+*/
 /* Enum of file types to create */
 enum filetype { FILE_INPUT, FILE_OBJECT, FILE_ENTRY, FILE_EXTERN };
 
