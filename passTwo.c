@@ -1,6 +1,6 @@
 #include "main.h"
 #include "external_vars.h"
-#include "passFuctions.h"
+#include "passFunctions.h"
 #include "common.h"
 
 
@@ -27,9 +27,8 @@ void passTwo(FILE* fp, char* filename) {
 		}
 
 		/*Free memory of linked list/tabels*/
-		/*need to add functions*/
-		/******/free_labels(&symbol_table);
-		/******/free_ext(&ext_list);
+		free_labels(&symbols_table);
+		free_ext(&ext_list);
 	}
 }
 
@@ -39,13 +38,13 @@ void line_pass_two(char* line) {
 	char current_sign[MAX_INPUT];
 
 	line = skip_spaces(line);
-	if (end_of_line(line)) 
+	if (end_of_line(line))
 		return;
 
 	copy_sign(current_sign, line);
-	if (is_label(current_sign, COLON) {/* Check how to creat the seperation with the ':' */
+	if (is_label(current_sign, COLON)) {/* Check how to creat the seperation with the ':' */
 		line = next_sign(line);
-		copy_sign(current_sign, line);
+			copy_sign(current_sign, line);
 	}
 
 	if ((guidence_type = find_guidence(current_sign)) != NO_MATCH) /* We need to handle only .entry directive */
@@ -54,7 +53,7 @@ void line_pass_two(char* line) {
 			if (guidence_type == ENTRY)
 			{
 				copy_sign(current_sign, line);
-				make_entry(symbols_table, current_sign); 
+				make_entry(symbols_table, current_sign);
 			}
 	}
 
@@ -63,6 +62,7 @@ void line_pass_two(char* line) {
 		line = next_sign(line);
 		handle_command_pass_two(command_type, line);
 	}
+	
 }
 
 /* The fuction that creats the output files */
@@ -72,12 +72,12 @@ void creat_output_files(char* name) {
 	file = open_file(name, FILE_OBJECT);
 	creat_object_file(file); /* Creating object file */
 
-	if (entry_exist) {
+	if (entry_exists) {
 		file = open_file(name, FILE_ENTRY);
 		creat_entry_file(file);/* Creating entry file if entry exists */
 	}
 
-	if (extern_exist) {
+	if (extern_exists) {
 		file = open_file(name, FILE_EXTERN);
 		creat_extern_file(file);/* Creating external file if extern exists */
 	}
@@ -101,8 +101,8 @@ FILE* open_file(char* filename, int type) {
 	return file;
 }
 
-void creat_object_file(FILE *fp) {
-	
+void creat_object_file(FILE* fp) {
+
 	unsigned int address = DEFAULT_IC;/*start of memory*/
 	int i;
 	char* param1 = ic, * param2 = dc;
@@ -146,8 +146,8 @@ void creat_entry_file(FILE* fp) {
 	{
 		if (label->entry)
 		{
-			param1 = label -> name;
-			param2 = label -> address;
+			param1 = label->name;
+			param2 = label->address;
 			fprintf(fp, "%s \t %hh6X\n", param1, param2);
 			free(param1);
 			free(param2);
@@ -165,8 +165,8 @@ void creat_external_file(FILE* fp) {
 	/* Going through external circular linked list and pulling out values */
 	do
 	{
-		param1 = node -> name;
-		param2 = node -> address;
+		param1 = node->name;
+		param2 = node->address;
 		fprintf(fp, "%s \t %hh6X\n", param1, param2); /* Printing to file */
 		free(param1);
 		free(param2);
@@ -211,7 +211,7 @@ void does_operand_exists(int ope, boolean* is_source, boolean* is_destination) {
 /* This function handles commands for the second pass - encoding additional words */
 int handle_command_pass_two(int type, char* line)
 {
-	
+
 	char first_op[MAX_INPUT], second_op[MAX_INPUT]; /* will hold first and second operands */
 	char* src = first_op, * dest = second_op; /* after the check below, src will point to source and
  *                                              dest to destination operands */
@@ -225,7 +225,7 @@ int handle_command_pass_two(int type, char* line)
 		src_method = extract_bits(instructions[ic], SRC_METHOD_START_POS, SRC_METHOD_END_POS);//check how to place bits
 	if (is_dest)
 		dest_method = extract_bits(instructions[ic], DEST_METHOD_START_POS, DEST_METHOD_END_POS);//check how to place bits
-	
+
 	/* Matching src and dest pointers to the correct operands (first or second or both) */
 	if (is_src || is_dest)
 	{
@@ -258,7 +258,7 @@ int encode_additional_words(char* src, char* dest, boolean is_src, boolean is_de
 	{
 		if (is_src)
 			encode_additional_word(FALSE, src_method, src);
-		if (is_dest) 
+		if (is_dest)
 			encode_additional_word(TRUE, dest_method, dest);
 	}
 	return if_error();
@@ -268,20 +268,21 @@ int encode_additional_words(char* src, char* dest, boolean is_src, boolean is_de
 /* This function encodes a given label (by name) to memory */
 void encode_label(char* label)
 {
-	unsigned char word[3] = 0; /* The word to be encoded */
+	unsigned int word = 0; /* The word to be encoded */
 
 	if (is_existing_label(symbols_table, label)) { /* If label exists */
 		word = get_label_address(symbols_table, label); /* Getting label's address */
 
 		if (is_external_label(symbols_table, label)) { /* If the label is an external one */
 			/* Adding external label to external list (value should be replaced in this address) */
-			add_ext(&ext_list, label, ic + MEMORY_START);
+			add_ext(&ext_list, label, ic + DEFAULT_IC);
 			word = 0;/*making sure that the word is zero, and sets the External bit*/
 			word = EXTERNAL;
 		}
 		else
 			word <<= ARE_BITS;
-			word |= RELOCATABLE; /* If it's not an external label, then it's relocatable */
+		
+		word |= RELOCATABLE; /* If it's not an external label, then it's relocatable */
 
 		encode_to_instructions(word); /* Encode word to memory */
 	}
@@ -293,8 +294,8 @@ void encode_label(char* label)
 }
 
 void encode_label_relative(char* label) {
-	
-	unsigned char word[3] = 0; /* The word to be encoded */
+
+	unsigned char* word = 0; /* The word to be encoded */
 
 	if (label[0] == '&') {
 		label++;
@@ -314,7 +315,7 @@ void encode_label_relative(char* label) {
 /* This function encodes an additional word to instructions memory, given the addressing method */
 void encode_additional_word(boolean is_dest, int method, char* operand)
 {
-	unsigned char word[3] = 0; /* An empty word */
+	unsigned char* word = 0; /* An empty word */
 	char* temp;
 
 	switch (method)
@@ -326,10 +327,9 @@ void encode_additional_word(boolean is_dest, int method, char* operand)
 	case METHOD_RELATIVE:
 		encode_label_relative(operand);
 		break;
-		
+
 	case METHOD_REGISTER:
 		word = build_register_word(is_dest, operand);
 		encode_to_instructions(word);
 	}
 }
-
