@@ -1,6 +1,6 @@
 #include "main.h"
 #include "external_vars.h"
-#include "passFuctions.h"
+#include "passFunctions.h"
 #include "common.h"
 
 
@@ -12,7 +12,7 @@ void passOne(FILE* fp)
 	int line_number = 1;/*line number starts from 1*/
 
 	/* Initializing data and instructions counter */
-	ic = 100;
+	ic = 0;
 	dc = 0;
 
 	while (fgets(line, MAX_INPUT, fp) != NULL) /* Read lines until end of file */
@@ -30,9 +30,9 @@ void passOne(FILE* fp)
 
    /* When the first pass ends and the symbols table is complete and IC is evaluated,
    we can calculate real final addresses */
-   /*
-  offset_addresses(symbols_table, MEMORY_START, FALSE);  Instruction symbols will have addresses that start from 100 (MEMORY_START)
-  offset_addresses(symbols_table, ic + MEMORY_START, TRUE);  Data symbols will have addresses that start fron NENORY_START + IC */
+  
+	offset_address(symbols_table, DEFAULT_IC, FALSE);  /*Instruction symbols will have addresses that start from 100 (MEMORY_START)*/
+	offset_address(symbols_table, ic + DEFAULT_IC, TRUE); /* Data symbols will have addresses that start fron NENORY_START + IC*/
 }
 
 
@@ -45,7 +45,7 @@ void  line_pass_one(char* line)
 	int funct_type = UNKNOWN_FUNCT;
 	boolean label = FALSE; /* This variable will hold TRUE if a label exists in this line */
 	labelPtr label_node = NULL; /* This variable holds optional label in case we need to create it */
-	char current_sign[LINE_LENGTH]; /* This string will hold the current sign if we analyze it */
+	char current_sign[MAX_INPUT]; /* This string will hold the current sign if we analyze it */
 
 
 	/*Beginning to cross a line*/
@@ -61,7 +61,7 @@ void  line_pass_one(char* line)
 	if (is_label(current_sign, COLON))/*test if the first word is a label*/
 	{
 		label = TRUE;
-		label_node = add_label(&symbol_table, current_sign, 100,/* FALSE,FALSE*/)/*Adding a new label to the Symbol table*/
+		label_node = add_label(&symbols_table, current_sign, 100, FALSE, FALSE);/*Adding a new label to the Symbol table*/
 			if (label_node == NULL)/*in case we didnt succeed to add the label*/
 				return;
 		line = next_sign(line);/*Getting the next sign*/
@@ -85,8 +85,8 @@ void  line_pass_one(char* line)
 				}
 				else
 					/* Setting fields accordingly in label */
-					label_node->symbol_type = "data";
-				label_node->address = dc; /* Address of data label is dc */
+					strcpy(label_node->symbol_type,"data");
+					label_node->address = dc; /* Address of data label is dc */
 
 			}
 			line = next_sign(line);
@@ -95,16 +95,12 @@ void  line_pass_one(char* line)
 
 		else if ((command_type = find_command(current_sign)) != NO_MATCH) /* in case the sign is a command */
 		{
-
-			if (funct_type = find_command_funct(current_sign)) != NO_MATCH)
-			{
 			if (label != 0)
 			{
 				/* Setting fields accordingly in label */
 				//label_node->dataStorageStatment = TRUE;
-				label_node->symbol_type = "code";
+				strcpy(label_node->symbol_type,"code");
 				label_node->address = ic;/* Address of data label is ic */
-			}
 			}
 			line = next_sign(line);
 			handle_command(command_type, line);
@@ -128,7 +124,7 @@ int handle_guidance(int guidance_type, char* line)
 		return ERROR;
 	}
 
-	switch (type)
+	switch (guidance_type)
 	{
 	case DATA:
 		/* Handle .data  and insert values separated by comma to the memory */
@@ -282,7 +278,6 @@ int handle_command(int type, char* line)
 	boolean is_second = FALSE; /* These booleans will tell which of the operands were received (not by source/dest, but by order) */
 	int first_method, second_method; /* These will hold the addressing methods of the operands */
 	char first_operand[20], second_operand[20]; /* These strings will hold the operands */
-	char *point_first = first_op, *point_second = second_op; /*This will hold pointers to the first and teh seconed operands*/
 
 	boolean is_first_register = FALSE;
 	boolean is_second_register = FALSE;
@@ -297,7 +292,7 @@ int handle_command(int type, char* line)
 		line = next_list_sign(second_operand, line);
 		if (!end_of_line(second_operand)) /* If second operand (should hold temporarily a comma) is not empty */
 		{
-			if (second_op[0] != ',') /* A comma must separate two operands of a command */
+			if (second_operand[0] != ',') /* A comma must separate two operands of a command */
 			{
 				error = COMMAND_UNEXPECTED_CHAR;
 				return ERROR;
@@ -346,9 +341,9 @@ int handle_command(int type, char* line)
 				encode_to_instructions(build_first_word(type, is_first, is_second, first_method, second_method, first_register, second_register));
 				ic += calculate_command_num_additional_words(is_first, is_second, first_method, second_method);//////////////////////////////////////////////need to edjust the method
 				if (first_method = METHOD_IMMEDIATE)
-					encode_to_instructions(build_additional_word_first_pass(point_first);)
+					encode_to_instructions(build_additional_word_first_pass(first_operand));
 				else if (second_method = METHOD_IMMEDIATE)
-					encode_to_instructions(build_additional_word_first_pass(point_second);)
+					encode_to_instructions(build_additional_word_first_pass(second_operand));
 			}
 
 			else
@@ -369,7 +364,7 @@ int handle_command(int type, char* line)
 
 void write_num_to_data(int num)
 {
-	data[dc++] = (unsigned char[3])num;
+	data[dc++] = (unsigned int)num;
 }
 
 /* This function tries to find the addressing method of a given operand and returns -1 if it was not found */
@@ -508,12 +503,12 @@ boolean command_accept_methods(int type, int first_method, int second_method)
 }
 
 /* This function encodes the first word of the command */
-unsigned char *build_first_word(int type, int is_first, int is_second, int first_method, int second_method, int first_register, int second_register)
+unsigned char* build_first_word(int type, int is_first, int is_second, int first_method, int second_method, int first_register, int second_register)
 {
 	int funct = 0;
-	funct = detect_funct(type, funct);
+	funct = command_funct(type);
 
-	unsigned char word[3] = 0;
+	unsigned int word = 0;
 
 	/* Inserting the opcode */
 	word |= type;
@@ -556,9 +551,9 @@ unsigned char *build_first_word(int type, int is_first, int is_second, int first
 }
 
 
-unsigned char *build_additional_word_first_pass(char *operand)
+unsigned int build_additional_word_first_pass(int operand)
 {
-	unsigned char word[3] = EMPTY_WORD; /* An empty word */
+	unsigned int word = 0; /* An empty word */
 	unsigned int temp;
 
 
@@ -572,8 +567,8 @@ unsigned char *build_additional_word_first_pass(char *operand)
 	return word;
 }
 
-		
-	    
+
+
 /* This function calculates number of additional words for a command */
 int calculate_command_num_additional_words(int is_first, int is_second, int first_method, int second_method)
 {
@@ -593,4 +588,34 @@ int num_words(int method)
 		return 1;
 	else /*in case the methid is REGISTER*/
 		return 0;
+}
+
+int command_funct(int commands) {
+
+	switch (commands)
+	{
+	case ADD:
+	case CLR:
+	case JMP:
+		return 1;
+		break;
+
+	case SUB:
+	case NOT:
+	case BNE:
+		return 2;
+		break;
+
+	case INC:
+	case JSR:
+		return 3;
+		break;
+
+	case DEC:
+		return 4;
+		break;
+
+	}
+	return UNKNOWN_FUNCT;
+
 }
