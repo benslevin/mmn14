@@ -49,7 +49,8 @@ void  line_pass_one(char* line)
 
     /*Beginning to cross a line*/
     line = skip_spaces(line);/*skip all spaces*/
-    if (end_of_line(line)) return;/*starts next row in case the row is empty*/
+    if (end_of_line(line))
+        return;/*starts next row in case the row is empty*/
 
     if ((isalpha(*line) == 0) && *line != '.') { /* first non-blank character must be a letter or a dot */
         error = INVALID_SYNTAX;
@@ -320,9 +321,9 @@ int handle_command(int type, char* line)
     if ((is_second == TRUE))
         second_method = detect_method(second_operand); /* Detect addressing method of second operand */
 
-    if ((first_method = METHOD_REGISTER))
+    if (first_method == METHOD_REGISTER)
         first_register = find_reg_number(first_operand);
-    if ((second_method = METHOD_REGISTER))
+    if (second_method == METHOD_REGISTER)
         second_register = find_reg_number(second_operand);
 
 
