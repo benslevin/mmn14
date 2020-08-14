@@ -27,7 +27,7 @@ void passTwo(FILE* fp, char* filename) {
 		}
 
 		/*Free memory of linked list/tabels*/
-		free_labels(&symbols_table);
+		free_label_table(&symbols_table);
 		free_ext(&ext_list);
 	}
 }
@@ -66,7 +66,7 @@ void line_pass_two(char* line) {
 }
 
 /* The fuction that creats the output files */
-void creat_output_files(char* name) {
+int creat_output_files(char* name) {
 	FILE* file;
 
 	file = open_file(name, FILE_OBJECT);
@@ -79,7 +79,7 @@ void creat_output_files(char* name) {
 
 	if (extern_exists) {
 		file = open_file(name, FILE_EXTERN);
-		creat_extern_file(file);/* Creating external file if extern exists */
+		creat_external_file(file);/* Creating external file if extern exists */
 	}
 
 	return EMPTY_ERROR; /* No errors found during the passes */
@@ -105,32 +105,27 @@ void creat_object_file(FILE* fp) {
 
 	unsigned int address = DEFAULT_IC;/*start of memory*/
 	int i;
-	char* param1 = ic, * param2 = dc;
+	int param1 = ic, param2 = dc;
+	unsigned int param3, param4, param5, param6;
 
-	fprintf(fp, "%s \t %s\n\n", param1, param2); /* First line */
-	free(param1);
-	free(param2);
+	fprintf(fp, "%d \t %d\n\n", param1, param2); /* First line */
 
 	for (i = 0; i < ic; address++, i++) /* Instructions memory */
 	{
-		param1 = address;
-		param2 = instructions[i];
+		param3 = address;
+		param4 = instructions[i];
 
-		fprintf(fp, "%07d \t %hh6X\n", param1, param2);
+		fprintf(fp, "%07d \t %X\n", param3, param4);
 
-		free(param1);
-		free(param2);
 	}
 
 	for (i = 0; i < dc; address++, i++) /* Data memory */
 	{
-		param1 = address;
-		param2 = data[i];
+		param5 = address;
+		param6 = data[i];
 
-		fprintf(fp, "%07d \t %hh6X\n", param1, param2);
+		fprintf(fp, "%07d \t %X\n", param5, param6);
 
-		free(param1);
-		free(param2);
 	}
 
 	fclose(fp);
@@ -138,7 +133,8 @@ void creat_object_file(FILE* fp) {
 
 void creat_entry_file(FILE* fp) {
 
-	char* param1, * param2;
+	char* param1;
+	unsigned int param2;
 	labelPtr label = symbols_table;
 
 	/* Go through symbols table and print only symbols that have an entry */
@@ -148,9 +144,8 @@ void creat_entry_file(FILE* fp) {
 		{
 			param1 = label->name;
 			param2 = label->address;
-			fprintf(fp, "%s \t %hh6X\n", param1, param2);
+			fprintf(fp, "%s \t %X\n", param1, param2);
 			free(param1);
-			free(param2);
 		}
 		label = label->next;
 	}
@@ -159,7 +154,8 @@ void creat_entry_file(FILE* fp) {
 
 void creat_external_file(FILE* fp) {
 
-	char* param1, param2;
+	char* param1;
+	unsigned int param2;
 	extPtr node = ext_list;
 
 	/* Going through external circular linked list and pulling out values */
@@ -167,9 +163,8 @@ void creat_external_file(FILE* fp) {
 	{
 		param1 = node->name;
 		param2 = node->address;
-		fprintf(fp, "%s \t %hh6X\n", param1, param2); /* Printing to file */
+		fprintf(fp, "%s \t %X\n", param1, param2); /* Printing to file */
 		free(param1);
-		free(param2);
 		node = node->next;
 	} while (node != ext_list);
 	fclose(fp);
@@ -307,8 +302,6 @@ void encode_label_relative(char* label) {
 /* This function encodes an additional word to instructions memory, given the addressing method */
 void encode_additional_word(boolean is_dest, int method, char* operand)
 {
-	unsigned int word = 0; /* An empty word */
-	char* temp;
 
 	switch (method)
 	{
@@ -319,9 +312,5 @@ void encode_additional_word(boolean is_dest, int method, char* operand)
 	case METHOD_RELATIVE:
 		encode_label_relative(operand);
 		break;
-
-	case METHOD_REGISTER:
-		word = build_register_word(is_dest, operand);
-		encode_to_instructions(word);
 	}
 }
