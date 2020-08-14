@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
     int i;
     char* fileName = {0};
     FILE* fp;
-    if (argc < 2) {
+    if (argc < 1) {
         fprintf(stdout, "No argument found, please enter a file name to process\n");
         exit(1);
     }
