@@ -77,8 +77,7 @@ char* skip_spaces(char* ch)
 /* Checking for the end of line*/
 int end_of_line(char* line)
 {
-    if (line == NULL || *line == '\0' || *line == '\n')
-        return 0;
+    return (line == NULL || *line == '\0' || *line == '\n');
 }
 
 /*copies the next word from line to destination*/
