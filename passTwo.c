@@ -13,7 +13,7 @@ void passTwo(FILE* fp, char* filename) {
 
 	while (fgets(line, MAX_INPUT, fp) != NULL) {
 		error = EMPTY_ERROR;
-		if (!ignore(line)) {/* Checks if needs to ignore line */
+		if (!ignore_line(line)) {/* Checks if needs to ignore line */
 			line_pass_two(line);
 		}
 		if (if_error()) {
