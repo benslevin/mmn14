@@ -2,9 +2,10 @@
 
 #define external_vars_h
 
-
 #include "main.h"
 #include "struct.h"
+
+/*In this file we creat extern vars for using in all the program */
 
 extern int ic, dc;
 extern int error;
