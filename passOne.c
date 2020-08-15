@@ -49,8 +49,7 @@ void  line_pass_one(char* line)
 
     /*Beginning to cross a line*/
     line = skip_spaces(line);/*skip all spaces*/
-    if (end_of_line(line))
-        return;/*starts next row in case the row is empty*/
+    if (end_of_line(line)) return;/*starts next row in case the row is empty*/
 
     if ((isalpha(*line) == 0) && *line != '.') { /* first non-blank character must be a letter or a dot */
         error = INVALID_SYNTAX;
@@ -85,7 +84,7 @@ void  line_pass_one(char* line)
             }
             else
                 /* Setting fields accordingly in label */
-                strcpy(label_node->symbol_type,"data");
+                strcpy(label_node->symbol_type, "data");
             label_node->address = dc; /* Address of data label is dc */
 
         }
@@ -99,7 +98,7 @@ void  line_pass_one(char* line)
         {
             /* Setting fields accordingly in label */
             label_node->inActionStatement = TRUE;
-            strcpy(label_node->symbol_type,"code");
+            strcpy(label_node->symbol_type, "code");
             label_node->address = ic;/* Address of data label is ic */
         }
         line = next_sign(line);
@@ -126,26 +125,26 @@ int handle_guidance(int guidance_type, char* line)
 
     switch (guidance_type)
     {
-        case DATA:
-            /* Handle .data  and insert values separated by comma to the memory */
-            return handle_data_guidance(line);
+    case DATA:
+        /* Handle .data  and insert values separated by comma to the memory */
+        return handle_data_guidance(line);
 
-        case STRING:
-            /* Handle .string directive and insert all characters (including a '\0') to memory */
-            return handle_string_guidance(line);
+    case STRING:
+        /* Handle .string directive and insert all characters (including a '\0') to memory */
+        return handle_string_guidance(line);
 
-        case ENTRY:
-            /* Only check for syntax of entry (should not contain more than one parameter) */
-            if (!end_of_line(next_sign(line))) /* If there's a next token (after the first one) */
-            {
-                error = GUIDANCE_INVALID_NUM_PARAMS;
-                return ERROR;
-            }
-            break;
+    case ENTRY:
+        /* Only check for syntax of entry (should not contain more than one parameter) */
+        if (!end_of_line(next_sign(line))) /* If there's a next token (after the first one) */
+        {
+            error = GUIDANCE_INVALID_NUM_PARAMS;
+            return ERROR;
+        }
+        break;
 
-        case EXTERN:
-            /* Handle .extern directive */
-            return handle_extern_guidance(line);
+    case EXTERN:
+        /* Handle .extern directive */
+        return handle_extern_guidance(line);
     }
     return EMPTY_ERROR;
 }
@@ -276,7 +275,7 @@ int handle_command(int type, char* line)
 {
     boolean is_first = FALSE;
     boolean is_second = FALSE; /* These booleans will tell which of the operands were received (not by source/dest, but by order) */
-    int first_method, second_method; /* These will hold the addressing methods of the operands */
+    int first_method = 0, second_method = 0; /* These will hold the addressing methods of the operands */
     char first_operand[20], second_operand[20]; /* These strings will hold the operands */
 
     int first_register = 0;
@@ -316,18 +315,16 @@ int handle_command(int type, char* line)
         return ERROR;
     }
 
-    if ((is_first == TRUE))
+    if ((is_first == TRUE)) {
         first_method = detect_method(first_operand); /* Detect addressing method of first operand */
-    if ((is_second == TRUE))
+        if ((first_method == METHOD_REGISTER))
+            first_register = find_reg_number(first_operand);
+    }
+    if ((is_second == TRUE)) {
         second_method = detect_method(second_operand); /* Detect addressing method of second operand */
-
-    if (first_method == METHOD_REGISTER)
-        first_register = find_reg_number(first_operand);
-    if (second_method == METHOD_REGISTER)
-        second_register = find_reg_number(second_operand);
-
-
-
+        if ((second_method == METHOD_REGISTER))
+            second_register = find_reg_number(second_operand);
+    }
 
     if (!if_error()) /* If there was no error while trying to parse addressing methods */
     {
@@ -338,10 +335,6 @@ int handle_command(int type, char* line)
                 /* encode first word of the command to memory and increase ic by the number of additional words */
                 encode_to_instructions(build_first_word(type, is_first, is_second, first_method, second_method, first_register, second_register));
                 ic += calculate_command_num_additional_words(is_first, is_second, first_method, second_method);
-                if ((first_method = METHOD_IMMEDIATE))
-                    encode_to_instructions(build_additional_word_first_pass(first_operand));
-                else if ((second_method = METHOD_IMMEDIATE))
-                    encode_to_instructions(build_additional_word_first_pass(second_operand));
             }
 
             else
@@ -355,6 +348,7 @@ int handle_command(int type, char* line)
             error = COMMAND_INVALID_NUMBER_OF_OPERANDS;
             return ERROR;
         }
+   
     }
 
     return EMPTY_ERROR;
@@ -379,11 +373,11 @@ int detect_method(char* operand)
             return METHOD_IMMEDIATE;
     }
 
-        /*----- Direct addressing method check ----- */
+    /*----- Direct addressing method check ----- */
     else if (is_label(operand, FALSE)) /* Checking if it's a label when there shouldn't be a colon (:) at the end */
         return METHOD_DIRECT;
 
-        /*----- Relative addressing method check ----- */
+    /*----- Relative addressing method check ----- */
     else if (*operand == '&') {
         operand++;
         if (is_label(operand, FALSE))
@@ -391,7 +385,7 @@ int detect_method(char* operand)
             return METHOD_RELATIVE;
     }
 
-        /*----- Register addressing method check -----*/
+    /*----- Register addressing method check -----*/
     else if (is_register(operand))
         return METHOD_REGISTER;
 
@@ -405,29 +399,29 @@ boolean command_accept_num_operands(int type, boolean first, boolean second)
     switch (type)
     {
         /* These opcodes must receive 2 operands */
-        case MOV:
-        case CMP:
-        case ADD:
-        case SUB:
-        case LEA:
-            return first && second;
+    case MOV:
+    case CMP:
+    case ADD:
+    case SUB:
+    case LEA:
+        return first && second;
 
-            /* These opcodes must only receive 1 operand */
-        case NOT:
-        case CLR:
-        case INC:
-        case DEC:
-        case JMP:
-        case BNE:
-        case RED:
-        case PRN:
-        case JSR:
-            return first && !second;
+        /* These opcodes must only receive 1 operand */
+    case NOT:
+    case CLR:
+    case INC:
+    case DEC:
+    case JMP:
+    case BNE:
+    case RED:
+    case PRN:
+    case JSR:
+        return first && !second;
 
-            /* These opcodes can't have any operand */
-        case RTS:
-        case STOP:
-            return !first && !second;
+        /* These opcodes can't have any operand */
+    case RTS:
+    case STOP:
+        return !first && !second;
     }
     return FALSE;
 }
@@ -441,61 +435,61 @@ boolean command_accept_methods(int type, int first_method, int second_method)
          * Source: 0, 1, 3
          * Destination: 1, 3
          */
-        case MOV:
-        case ADD:
-        case SUB:
-            return (first_method == METHOD_IMMEDIATE || first_method == METHOD_DIRECT || first_method == METHOD_REGISTER)
-                   &&
-                   (second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
-            /* CMP opcode only accept
-             * Source: 0, 1, 3
-             * Destination: 0, 1, 3
-            */
-        case CMP:
-            return (first_method == METHOD_IMMEDIATE || first_method == METHOD_DIRECT || first_method == METHOD_REGISTER)
-                   &&
-                   (second_method == METHOD_IMMEDIATE || second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
+    case MOV:
+    case ADD:
+    case SUB:
+        return (first_method == METHOD_IMMEDIATE || first_method == METHOD_DIRECT || first_method == METHOD_REGISTER)
+            &&
+            (second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
+        /* CMP opcode only accept
+         * Source: 0, 1, 3
+         * Destination: 0, 1, 3
+        */
+    case CMP:
+        return (first_method == METHOD_IMMEDIATE || first_method == METHOD_DIRECT || first_method == METHOD_REGISTER)
+            &&
+            (second_method == METHOD_IMMEDIATE || second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
 
-            /* LEA opcode only accept
-             * Source: 1
-             * Destination: 1, 3
-            */
-        case LEA:
-            return (first_method == METHOD_DIRECT) && (second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
+        /* LEA opcode only accept
+         * Source: 1
+         * Destination: 1, 3
+        */
+    case LEA:
+        return (first_method == METHOD_DIRECT) && (second_method == METHOD_DIRECT || second_method == METHOD_REGISTER);
 
-            /* These opcodes only accept
-             * Source: NONE
-             * Destination: 1, 3
-            */
-        case CLR:
-        case NOT:
-        case INC:
-        case DEC:
-        case RED:
-            return (first_method == METHOD_DIRECT || first_method == METHOD_REGISTER);
+        /* These opcodes only accept
+         * Source: NONE
+         * Destination: 1, 3
+        */
+    case CLR:
+    case NOT:
+    case INC:
+    case DEC:
+    case RED:
+        return (first_method == METHOD_DIRECT || first_method == METHOD_REGISTER);
 
-            /* These opcodes only accept
-             * Source: NONE
-             * Destination: 1, 2
-            */
-        case JMP:
-        case BNE:
-        case JSR:
-            return (first_method == METHOD_DIRECT || first_method == METHOD_RELATIVE);
+        /* These opcodes only accept
+         * Source: NONE
+         * Destination: 1, 2
+        */
+    case JMP:
+    case BNE:
+    case JSR:
+        return (first_method == METHOD_DIRECT || first_method == METHOD_RELATIVE);
 
-            /* PRN opcode only accept
-             * Source: NONE
-             * Destination: 0, 1, 3
-            */
-        case PRN:
-            return (first_method == METHOD_IMMEDIATE || first_method == METHOD_DIRECT || first_method == METHOD_REGISTER);
+        /* PRN opcode only accept
+         * Source: NONE
+         * Destination: 0, 1, 3
+        */
+    case PRN:
+        return (first_method == METHOD_IMMEDIATE || first_method == METHOD_DIRECT || first_method == METHOD_REGISTER);
 
-            /* These opcodes are always ok because they accept all methods/none of them and
-             * number of operands is being verified in another function
-            */
-        case RTS:
-        case STOP:
-            return TRUE;
+        /* These opcodes are always ok because they accept all methods/none of them and
+         * number of operands is being verified in another function
+        */
+    case RTS:
+    case STOP:
+        return TRUE;
     }
     return FALSE;
 }
@@ -505,33 +499,48 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
 {
     unsigned int word = 0;
     int funct = 0;
+    int newType = 0;
+    newType = find_new_type(type);
     funct = command_funct(type);
 
     /* Inserting the opcode */
-    word |= type;
+    word |= newType;
 
     word <<= SRC_METHOD_BITS; /* Leave space for first method bits */
 
     /* If there are two operands, insert the first */
-    if (is_first && is_second)
+    if (is_first && is_second) {
         word |= first_method;/* insert first method bits, if not, insert nothing and move bits*/
+    }
 
     word <<= SRC_REG_BITS; /* Leave space for register bits */
 
-    if (first_method == METHOD_REGISTER) {
-        word |= first_register; /*insert source register number*/
+    if (is_first && is_second) {
+        if (first_method == METHOD_REGISTER) {
+            word |= first_register; /*insert source register number*/
+        }
     }
+
     word <<= DEST_METHOD_BITS;
 
     /* If there are two operands, insert the second. */
-    if (is_first && is_second)
+    if (is_first && is_second) {
         word |= second_method;
-        /* If not, insert the first one (a single operand is a destination operand). */
-    else if (is_first)
+    }
+    /* If not, insert the first one (a single operand is a destination operand). */
+    else if (is_first) {
         word |= first_method;
+    }
 
-    if (second_method == METHOD_REGISTER)
-        word |= second_register; /*insert destination register number*/
+    word <<= DEST_REG_BITS;
+
+    if (is_first && is_second) {
+        if (second_method == METHOD_REGISTER)
+            word |= second_register; /*insert destination register number*/
+    }
+    else if (is_first) {
+        word |= first_register;
+    }
 
     word <<= FUNCT_BITS; /*Leave space for function bits*/
 
@@ -545,41 +554,22 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
     return word;
 }
 
-
-unsigned int build_additional_word_first_pass(int operand)
-{
-    unsigned int word = 0; /* An empty word */
-    unsigned int temp;
-
-
-    temp = (unsigned int)atoi(operand + 1);
-    word |= temp;
-
-    word <<= ARE_BITS;
-
-    word |= ABSOLUTE;
-
-    return word;
-}
-
-
-
 /* This function calculates number of additional words for a command */
 int calculate_command_num_additional_words(int is_first, int is_second, int first_method, int second_method)
 {
     int count = 0;
-    if (is_first) count += num_words(first_method);
-    if (is_second) count += num_words(second_method);
+    if (is_first) 
+        count += num_words(first_method);
+    if (is_second)
+        count += num_words(second_method);
 
     return count;
 }
 
-
-
 /* This function returns how many additional words an addressing method requires */
 int num_words(int method)
 {
-    if (method == METHOD_IMMEDIATE || METHOD_DIRECT || METHOD_RELATIVE)
+    if ((method == METHOD_IMMEDIATE) || (method == METHOD_DIRECT) || (method == METHOD_RELATIVE))
         return 1;
     else /*in case the methid is REGISTER*/
         return 0;
@@ -589,28 +579,80 @@ int command_funct(int commands) {
 
     switch (commands)
     {
-        case ADD:
-        case CLR:
-        case JMP:
-            return 1;
-            break;
+    case ADD:
+    case CLR:
+    case JMP:
+        return 1;
+        break;
 
-        case SUB:
-        case NOT:
-        case BNE:
-            return 2;
-            break;
+    case SUB:
+    case NOT:
+    case BNE:
+        return 2;
+        break;
 
-        case INC:
-        case JSR:
-            return 3;
-            break;
+    case INC:
+    case JSR:
+        return 3;
+        break;
 
-        case DEC:
-            return 4;
-            break;
+    case DEC:
+        return 4;
+        break;
 
     }
     return UNKNOWN_FUNCT;
+}
 
+int find_new_type(int type) {
+    
+    switch (type)
+    {
+    case MOV:
+        return 0;
+        break;
+    
+    case CMP:
+        return 1;
+        break;
+    
+    case ADD:
+    case SUB:
+        return 2;
+        break;
+
+    case LEA:
+        return 4;
+        break;
+   
+    case CLR:
+    case NOT:
+    case INC:
+    case DEC:
+        return 5;
+        break;
+
+    case JMP:
+    case BNE:
+    case JSR:
+        return 9;
+        break;
+
+    case RED:
+        return 12;
+        break;
+    
+    case PRN:
+        return 13;
+        break;
+    
+    case RTS:
+        return 14;
+        break;
+   
+    case STOP:
+        return 15;
+        break;
+    }
+    return UNKNOWN_FUNCT;
 }
