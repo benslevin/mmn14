@@ -45,12 +45,8 @@ char* create_file_name(char* original, int type)
 
 /*checks if the line is empty or needs to be ignored (;)*/
 int ignore_line(char* line) {
-    int i = 0;
     line = skip_spaces(line);
-    while (*line == ';' || *line == '\0') {
-        i++;
-    }
-    if (*line == '\n') {
+    if (*line == ';' || *line == '\0' || *line == '\n') {
         return TRUE;
     }
     return FALSE;
@@ -68,7 +64,8 @@ int if_error()
 /* This function skips spaces (blanks)*/
 char* skip_spaces(char* ch)
 {
-    /*if (ch == NULL) return NULL;*/
+    if (ch == NULL) 
+        return NULL;
     while (isspace(*ch))/*while the current char is a space we will continue to the next one*/
         ch++;
     return ch;/*return the first non space char*/
@@ -99,7 +96,7 @@ void copy_sign(char* destination, char* line)
 unsigned int extract_bits(unsigned int word, int start, int end)
 {
     unsigned int result;
-    int length = SRC_METHOD_BITS; /* Length of bit-sequence */
+    int length = end - start + 1; /* Length of bit-sequence */
     unsigned int mask = (int)pow(2, length) - 1; /* Creating a '111...1' mask with above line's length */
 
     mask <<= start; /* Moving mask to place of extraction */
@@ -120,8 +117,10 @@ boolean is_label(char* sign, int colon)
     int i;
 
     /* Checking if token's length is not too short */
-    if (sign == NULL || sign_len < 2)/*with a colon the min length for a label is 2*/
-        return FALSE;
+    if (colon == TRUE) {
+        if (sign == NULL || sign_len < 2)/*with a colon the min length for a label is 2*/
+            return FALSE;
+    }
 
     if (colon && (sign[sign_len - 1] != ':'))
         return FALSE; /* if colon = TRUE, there must be a colon at the end */
@@ -198,9 +197,10 @@ int find_reg_number(char* sign)
     /* A register must have 2 characters, the first is 'r' and the second is a number between 0-7 */
     if (strlen(sign) == REG_LEN && sign[0] == 'r')
     {
+        int number = atoi(++sign);
         for (i = MIN_REGISTER_NUM; i <= MAX_REGISTER_NUM; i++)
-            if (sign[1] == i)
-                return i;
+            if (number == i)
+                return number;
     }
     else return 0;
 }
