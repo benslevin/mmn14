@@ -66,7 +66,8 @@ void  line_pass_one(char* line) {
         copy_sign(current_sign, line);/* After we get the next the next word or symbol we continue with the proccess */
     }
 
-    if (if_error()) {}/* In case the first pass for label search returns an error */
+    if (if_error())
+        return; /* In case the first pass for label search returns an error */
 
     if ((guidance_type = find_guidance(current_sign)) != NO_MATCH) /* In case the sign is a guidance */
     {
@@ -366,9 +367,14 @@ int detect_method(char* operand) {
     /*----- Relative addressing method check ----- */
     else if (*operand == '&') {
         operand++;
-        if (is_label(operand, FALSE))
+        if (is_label(operand, FALSE)) {
             /*need to add extern functionality*/
             return METHOD_RELATIVE;
+        }
+        else {
+            error = NOT_A_LABEL;
+            return 0;
+        }
     }
 
     /*----- Register addressing method check -----*/
