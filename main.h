@@ -9,9 +9,7 @@
 #include <stdarg.h>
 #include <math.h>
 
-
-
-/*This file includes values and enums for the entire program*/
+/* In this file we include values and enums for the entire program*/
 
 /****************************General values*******************************/
 
