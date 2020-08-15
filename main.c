@@ -34,7 +34,7 @@ void reset_flags() {
 int main(int argc, char* argv[]) {
 
     int i;
-    char* fileName = {0};
+    char* fileName = NULL;
     FILE* fp;
     if (argc < 2) {
         fprintf(stdout, "No argument found, please enter a file name to process\n");
@@ -42,15 +42,16 @@ int main(int argc, char* argv[]) {
     }
     else {
         for (i = 1; i < argc; i++) {
-            create_file_name(argv[i], FILE_INPUT); /* Uses the file name given in the command line */
-            if ((fp = fopen(argv[i], "r")) == NULL) { /* Open the file with reading permision */
+            fileName = create_file_name(argv[i], FILE_INPUT); /* Uses the file name given in the command line */
+            if ((fp = fopen(fileName, "r")) == NULL) { /* Open the file with reading permision */
                 fprintf(stderr, "\nAn error occured while opening the file: %s\n", fileName);
+                fprintf(stderr, "Value of errno: %d\n", errno);
             }
             else {
                 if (feof(fp) == 1)/* Checks if EOF reached */
                     fprintf(stderr, "\nThe file is empty\n");
                 else {
-                    fprintf(stdout, "*******Started working on file: %s*******", fileName);
+                    fprintf(stdout, "*******Started working on file: %s*******\n", fileName);
 
                     reset_flags();/* Resets all flags for the next file */
                     passOne(fp);
@@ -60,10 +61,10 @@ int main(int argc, char* argv[]) {
                         passTwo(fp, argv[i]);
                     }
                     else {/* First pass contains errors, stop processing the file */
-                        fprintf(stdout, "Errors found in file: %s, stoped working on file", fileName);
+                        fprintf(stdout, "Errors found in file: %s, stoped working on file\n", fileName);
                     }
 
-                    fprintf(stdout, "*******Finished working on file: %s*******", fileName);
+                    fprintf(stdout, "*******Finished working on file: %s*******\n", fileName);
                     fclose(fp); /* Close file */
                 }
             }
