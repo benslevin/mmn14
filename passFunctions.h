@@ -4,10 +4,10 @@
 
 #include "main.h"
 #include "struct.h"
-/*This file includes all the functions from the passes*/
 
-/*Pass one fuctions*/
+/*This file includes all functions from the  file passes*/
 
+/***********Pass one fuctions***********/
 void passOne(FILE* fp);
 void line_pass_one(char* line);
 int handle_guidance(int guidance_type, char* line);
@@ -25,8 +25,7 @@ int num_words(int method);
 int command_funct(int commands);
 int find_new_type(int type);
 
-/*Pass two fuctions*/
-
+/***********Pass two fuctions***********/
 void passTwo(FILE* fp, char* filename);
 void line_pass_two(char* line);
 int creat_output_files(char* name);
