@@ -294,8 +294,11 @@ void encode_label_relative(char* label) {
 			word = (get_label_address(symbols_table, label) - (ic + DEFAULT_IC) + 1); /* Getting label's address, and calculating the distance to label */
 			word <<= ARE_BITS;
 			word |= ABSOLUTE; /* Sets ARE bits */
+			encode_to_instructions(word); /* Encode word to memory */
 		}
-		encode_to_instructions(word); /* Encode word to memory */
+		else if (!is_existing_label(symbols_table, label)) {
+			error = NO_LABEL_FOUND;
+		}
 	}
 	else /* It's an error */
 	{
