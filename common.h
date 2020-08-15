@@ -5,7 +5,7 @@
 #include "main.h"
 #include "struct.h"
 
-/* Here we declare all the fuctions in common.c, struct.c and externalStruct.c */
+/* In this file we declare all the fuctions in common.c, struct.c and externalStructs.c */
 
 /* Functions from common.c */
 char* create_file_name(char* original, int type);
@@ -40,11 +40,9 @@ boolean is_existing_label(labelPtr l, char* name);
 labelPtr get_label(labelPtr l, char* name);
 void free_label_table(labelPtr* lptr);
 int delete_label(labelPtr* lptr, char* name);
-void print_labels(labelPtr l);
 
-/* Functions from externalStruct.c */
+/* Functions from externalStructs.c */
 extPtr add_ext(extPtr* lptr, char* name, unsigned int reference);
 void free_ext(extPtr* lptr);
-void print_ext(extPtr l);
 
 #endif
