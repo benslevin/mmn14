@@ -3,6 +3,7 @@
 #include "passFunctions.h"
 #include "common.h"
 
+/* This is the main file of the program */
 
 /* List of avaiable commands */
 const char* commands[] = { "mov", "cmp", "add", "sub", "lea", "clr", "not", "inc", "dec", "jmp", "bne","jsr", "red", "prn", "rts", "stop" };
@@ -45,7 +46,6 @@ int main(int argc, char* argv[]) {
             fileName = create_file_name(argv[i], FILE_INPUT); /* Uses the file name given in the command line */
             if ((fp = fopen(fileName, "r")) == NULL) { /* Open the file with reading permision */
                 fprintf(stderr, "\nAn error occured while opening the file: %s\n", fileName);
-                fprintf(stderr, "Value of errno: %d\n", errno);
             }
             else {
                 if (feof(fp) == 1)/* Checks if EOF reached */
