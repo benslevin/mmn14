@@ -1,8 +1,6 @@
 #include "main.h"
 #include "struct.h"
 
-
-
 /* This function adds a node to the end of the list */
 extPtr add_ext(extPtr* lptr, char* name, unsigned int reference)
 {
