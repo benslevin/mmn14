@@ -190,8 +190,14 @@ boolean is_register(char* sign) {
     if (strlen(sign) == REG_LEN && sign[0] == 'r' && sign[1] >= '0' && sign[1] <= '7') {
         return TRUE;
     }
-    else 
+    else if (strlen(sign) == REG_LEN && sign[0] == 'r' && sign[1] > '0' && sign[1] > '7') {
+         error = NOT_A_VALID_REG;
+         return FALSE;
+    }
+    else {
         return FALSE;
+    }
+       
 }
 
 /* Finds registers number */
@@ -206,8 +212,9 @@ int find_reg_number(char* sign) {
             if (number == i)
                 return number;
     }
-    else 
+    else {
         return 0;
+    }
 }
 
 /* This function finds an index of a string in an array of strings */
@@ -492,5 +499,26 @@ void write_error(int line_number) {
         fprintf(stderr, "there was an error while trying to open the requested file.\n");
 
         break;
+
+    case NOT_A_VALID_REG:
+        fprintf(stderr, "the register number is invalid.\n");
+
+        break;
+
+    case WRONG_SYNTAX_FOR_METHOD_RELATIVE:
+        fprintf(stderr, "wrong syntax used for relative method.\n");
+
+        break;
+
+    case NO_LABEL_FOUND:
+        fprintf(stderr, "no such label found in file for this method.\n");
+
+        break;
+
+    case NOT_A_LABEL:
+        fprintf(stderr, "incorrect label syntax.\n");
+
+        break;
     }
+
 }
