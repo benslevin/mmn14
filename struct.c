@@ -1,8 +1,10 @@
-
 #include "main.h"
 #include "common.h"
 #include "external_vars.h"
 
+/* In this file we have all functions regarding the label table */
+
+/*This function adds a label to the label table*/
 labelPtr add_label(labelPtr* lptr, char* name, unsigned int address, boolean external, ...) {
 
 	va_list p;
@@ -56,12 +58,10 @@ labelPtr add_label(labelPtr* lptr, char* name, unsigned int address, boolean ext
 	return temp;
 }
 
+/* This functions sets the correct address for the label (memory starts at 100) */
 void offset_address(labelPtr l, int num, boolean is_data) {
 	while (l)
 	{
-		/* We don't offset external labels (their address is 0). */
-		/* is_data and inActionStatement must have different values in order to meet the same criteria
-		 * and the XOR operator gives us that */
 		if (!(l->external) && (is_data ^ (l->inActionStatement)))
 		{
 			l->address += num;
@@ -70,6 +70,7 @@ void offset_address(labelPtr l, int num, boolean is_data) {
 	}
 }
 
+/* This function sets the bool var of an existing entry to true */
 int make_entry(labelPtr l, char* name) {
 	labelPtr label = get_label(l, name);
 	if (label != NULL)
@@ -88,6 +89,7 @@ int make_entry(labelPtr l, char* name) {
 	return FALSE;
 }
 
+/* This function gets the label address */
 unsigned int get_label_address(labelPtr l, char* name) {
 	labelPtr label = get_label(l, name);
 	if (label != NULL) {
@@ -96,6 +98,7 @@ unsigned int get_label_address(labelPtr l, char* name) {
 	else return FALSE;
 }
 
+/* This function checks if the label is external */
 boolean is_external_label(labelPtr l, char* name) {
 	labelPtr label = get_label(l, name);
 	if (label != NULL) {
@@ -104,11 +107,13 @@ boolean is_external_label(labelPtr l, char* name) {
 	else return FALSE;
 }
 
+/* This function checks if the label already exists */
 boolean is_existing_label(labelPtr l, char* name) {
 	
 	return (get_label(l, name) != NULL);
 }
 
+/* This function gets the label */
 labelPtr get_label(labelPtr l, char* name) {
 	
 	while (l) {
@@ -119,25 +124,22 @@ labelPtr get_label(labelPtr l, char* name) {
 	return NULL;
 }
 
-
-	/* Free the label list by going over each label and free it */
-	void free_label_table(labelPtr * lptr) 
-	{
-
-		labelPtr temp;
+/* This function frees the label list */
+void free_label_table(labelPtr * lptr) {
+		
+	labelPtr temp;
 		while (*lptr)
 		{
 			temp = *lptr;
 			*lptr = (*lptr)->next;
 			free(temp);
 		}
-	}
+}
 
-	int delete_label(labelPtr * lptr, char* name)
-	{
-		/* Goes over the label list and checking if a label by a given name is in the list if it is then deletes it by
-		free its space and change the previous label's pointer to point to the next label */
-		labelPtr temp = *lptr;
+/* This function delets label in the label list in case we entered a wrong label */
+int delete_label(labelPtr * lptr, char* name) {
+	
+	labelPtr temp = *lptr;
 		labelPtr prevtemp;
 		while (temp) {
 			if (strcmp(temp->name, name) == 0) {
@@ -155,16 +157,5 @@ labelPtr get_label(labelPtr l, char* name) {
 			temp = temp->next;
 		}
 		return 0;
-	}
+}
 
-	void print_labels(labelPtr l) {
-		while (l) {
-			printf("\nname: %s, address: %d, external: %d", l->name, l->address, l->external);
-			if (l->external == 0)
-				printf(", is in action statement: %d -> ", l->inActionStatement);
-			else
-				printf(" -> ");
-			l = l->next;
-		}
-		printf("*");
-	}
