@@ -3,12 +3,14 @@
 #include "passFunctions.h"
 #include "common.h"
 
+/* In this file we have functions that are in use for all the program */
+
 /*********functions for main**********/
 
-/* This function creates a file name by the name it recives from the user */
-char* create_file_name(char* original, int type)
-{
-    char* modified = (char*)malloc(strlen(original) + 4); /*Add space for the part after the "."*/
+/* This function creates a filename with the name it recives from the user */
+char* create_file_name(char* original, int type) {
+
+    char* modified = (char*)malloc(strlen(original) + 4); /* Add space for the part after the "." */
     if (modified == NULL)
     {
         fprintf(stderr, "Couldn't allocate memory.");
@@ -18,7 +20,6 @@ char* create_file_name(char* original, int type)
     strcpy(modified, original); /* Copying original filename to the bigger string */
 
     /* Concatenating the required file extension */
-
     switch (type)
     {
     case FILE_INPUT:
@@ -43,7 +44,7 @@ char* create_file_name(char* original, int type)
 
 /*********functions for passes**********/
 
-/*checks if the line is empty or needs to be ignored (;)*/
+/* Checks if the line is empty or needs to be ignored (;) */
 int ignore_line(char* line) {
     line = skip_spaces(line);
     if (*line == ';' || *line == '\0' || *line == '\n') {
@@ -52,9 +53,9 @@ int ignore_line(char* line) {
     return FALSE;
 }
 
-/*This function check if the 'error' flag was changed meaning that an error while reading the line occured*/
-int if_error()
-{
+/* This function check if the 'error' flag was changed meaning that an error while reading the line occured */
+int if_error() {
+
     if (error != EMPTY_ERROR)
         return 1;
     else
@@ -62,26 +63,26 @@ int if_error()
 }
 
 /* This function skips spaces (blanks)*/
-char* skip_spaces(char* ch)
-{
+char* skip_spaces(char* ch) {
+
     if (ch == NULL) 
         return NULL;
-    while (isspace(*ch))/*while the current char is a space we will continue to the next one*/
+    while (isspace(*ch))/* While the current char is a space we will continue to the next one */
         ch++;
-    return ch;/*return the first non space char*/
+    return ch;/* Return the first non space char */
 }
 
-/* Checking for the end of line*/
-int end_of_line(char* line)
-{
+/* Checking if end of line reached */
+int end_of_line(char* line) {
+
     return (line == NULL || *line == '\0' || *line == '\n');
 }
 
-/*copies the next word from line to destination*/
-void copy_sign(char* destination, char* line)
-{
+/* Copies the next word from line to destination */
+void copy_sign(char* destination, char* line) {
+
     int i = 0;
-    if (destination == NULL || line == NULL)
+    if (destination == NULL || line == NULL) 
         return;
 
     while (i < MAX_INPUT && !isspace(line[i]) && line[i] != '\0') /* Copying token until its end to *dest */
@@ -89,12 +90,12 @@ void copy_sign(char* destination, char* line)
         destination[i] = line[i];
         i++;
     }
-    destination[i] = '\0';
+    destination[i] = '\0'; /* Add end of string */
 }
 
 /* This function extracts bits, given start and end positions of the bit-sequence (0 is LSB) */
-unsigned int extract_bits(unsigned int word, int start, int end)
-{
+unsigned int extract_bits(unsigned int word, int start, int end) {
+
     unsigned int result;
     int length = end - start + 1; /* Length of bit-sequence */
     unsigned int mask = (int)pow(2, length) - 1; /* Creating a '111...1' mask with above line's length */
@@ -105,12 +106,8 @@ unsigned int extract_bits(unsigned int word, int start, int end)
     return result;
 }
 
-/* This function checks whether a given sign is a label or not (by syntax).
- * The parameter colon states whether the function should look for a ':' or not
- * when parsing parameter (to make it easier for both kinds of signs passed to this function.
- */
-boolean is_label(char* sign, int colon)
-{
+/* This function checks if a sign is a label or not */
+boolean is_label(char* sign, int colon) {
 
     boolean has_digits = FALSE; /* helps check if it's a command */
     int sign_len = strlen(sign);
@@ -118,16 +115,16 @@ boolean is_label(char* sign, int colon)
 
     /* Checking if token's length is not too short */
     if (colon == TRUE) {
-        if (sign == NULL || sign_len < 2)/*with a colon the min length for a label is 2*/
+        if (sign == NULL || sign_len < 2) /* With a colon the min length for a label is 2 */
             return FALSE;
     }
 
     if (colon && (sign[sign_len - 1] != ':'))
-        return FALSE; /* if colon = TRUE, there must be a colon at the end */
+        return FALSE; /* If colon = TRUE, there must be a colon at the end */
 
     if (sign_len > MAX_LABEL) {
         if (colon) {
-            error = LABEL_TOO_LONG; /*max length 32*/
+            error = LABEL_TOO_LONG; /* Max length 32 */
         }
         return FALSE;
     }
@@ -138,7 +135,7 @@ boolean is_label(char* sign, int colon)
         return FALSE;
     }
 
-    if (colon) {/*remove the colon*/
+    if (colon) { /* Remove the colon */
         sign[sign_len - 1] = '\0';
         sign_len--;
     }
@@ -168,46 +165,54 @@ boolean is_label(char* sign, int colon)
         return FALSE;
     }
 
-    return TRUE;
+    return TRUE; /* Its a label! */
 }
 
-char* next_sign(char* seq)
-{
-    if (seq == NULL) return NULL;
-    while (!isspace(*seq) && !end_of_line(seq)) seq++; /* Skip rest of characters in the current token (until a space) */
+/* This function gets next sign */
+char* next_sign(char* seq) {
+
+    if (seq == NULL)
+        return NULL;
+    while (!isspace(*seq) && !end_of_line(seq)) {/* Skip rest of characters in the current token (until a space) */
+        seq++; 
+    }
     seq = skip_spaces(seq); /* Skip spaces */
-    if (end_of_line(seq)) return NULL;
+    if (end_of_line(seq)) {
+        return NULL;
+    }
     return seq;
 }
 
 /* Check if a token matches a register name */
-boolean is_register(char* sign)
-{
+boolean is_register(char* sign) {
+
     /* A register must have 2 characters, the first is 'r' and the second is a number between 0-7 */
     if (strlen(sign) == REG_LEN && sign[0] == 'r' && sign[1] >= '0' && sign[1] <= '7') {
         return TRUE;
     }
-    else return FALSE;
+    else 
+        return FALSE;
 }
 
+/* Finds registers number */
+int find_reg_number(char* sign) {
 
-int find_reg_number(char* sign)
-{
     int i;
     /* A register must have 2 characters, the first is 'r' and the second is a number between 0-7 */
     if (strlen(sign) == REG_LEN && sign[0] == 'r')
     {
-        int number = atoi(++sign);
+        int number = atoi(++sign); /* Changes the ascii value to int */
         for (i = MIN_REGISTER_NUM; i <= MAX_REGISTER_NUM; i++)
             if (number == i)
                 return number;
     }
-    else return 0;
+    else 
+        return 0;
 }
 
 /* This function finds an index of a string in an array of strings */
-int find_index(char* sign, const char* arr[], int n)
-{
+int find_index(char* sign, const char* arr[], int n) {
+
     int i;
     for (i = 0; i < n; i++)
         if (strcmp(sign, arr[i]) == 0) {
@@ -217,28 +222,29 @@ int find_index(char* sign, const char* arr[], int n)
 }
 
 /* Check if a token matches a directive name */
-int find_guidance(char* sign)
-{
+int find_guidance(char* sign) {
+
     if (sign == NULL || *sign != '.') {
         return NO_MATCH;
-    }/*we have 4 guidance commands, check index number in enum*/
+    }/* We have 4 guidance commands, check index number in enum */
     return find_index(sign, guidance, 4);
 }
 
 /* Check if a sign matches a command name */
-int find_command(char* sign)
-{
+int find_command(char* sign) {
+
     int enum_index;
     int sign_len = strlen(sign);
-    if (sign_len > 4 || sign_len < 3)/*a command is between 3 and 4 chars*/
+    if (sign_len > 4 || sign_len < 3)/* A command is between 3 and 4 chars */
         return NO_MATCH;
     else
-        enum_index = find_index(sign, commands, 16); /*we have a total of 16 commands*/
+        enum_index = find_index(sign, commands, 16); /* We have a total of 16 commands */
     return enum_index;
 }
 
-char* next_list_sign(char* dest, char* line)
-{
+/* Copies the next sign to the destination */
+char* next_list_sign(char* dest, char* line) {
+
     char* temp = dest;
 
     if (end_of_line(line)) /* If the given line is empty, copy an empty sign */
@@ -263,36 +269,36 @@ char* next_list_sign(char* dest, char* line)
         temp++;
         line++;
     }
-    *temp = '\0';
+    *temp = '\0'; /* Adding end of string */
 
     return line;
 }
 
-boolean is_number(char* seq)
-{
-    if (end_of_line(seq)) return FALSE;
-    if (*seq == '+' || *seq == '-') /* a number can contain a plus or minus sign */
-    {
+/* Checks if number, also with +/- signs */
+boolean is_number(char* seq) {
+
+    if (end_of_line(seq)) 
+        return FALSE;
+    if (*seq == '+' || *seq == '-') {/* A number can contain a plus or minus sign */
         seq++;
-        if (!isdigit(*seq++)) return FALSE; /* but not only a sign */
+        if (!isdigit(*seq++)) 
+            return FALSE; /* But not only a sign */
     }
 
     /* Check that the rest of the token is made of digits */
-    while (!end_of_line(seq))
-    {
+    while (!end_of_line(seq)) {
         if (!isdigit(*seq++)) return FALSE;
     }
     return TRUE;
 }
 
-/* This function copies supposedly next string into dest array and returning a pointer to the
- * first character after it
- */
-char* next_sign_string(char* dest, char* line)
-{
+/* Copies next string into destination */
+char* next_sign_string(char* dest, char* line) {
+
     char temp[MAX_INPUT];
-    line = next_list_sign(dest, line);/*creat function */
-    if (*dest != '"') return line;
+    line = next_list_sign(dest, line);/* Creat function */
+    if (*dest != '"') 
+        return line;
     while (!end_of_line(line) && dest[strlen(dest) - 1] != '"')
     {
         line = next_list_sign(temp, line);
@@ -302,11 +308,12 @@ char* next_sign_string(char* dest, char* line)
 }
 
 /* This function checks if a given sequence is a valid string (wrapped with "") */
-boolean is_string(char* string)
-{
-    if (string == NULL) return FALSE;
+boolean is_string(char* string) {
 
-    if (*string == '"') /* starts with " */
+    if (string == NULL)
+        return FALSE;
+
+    if (*string == '"') /* Starts with " */
         string++;
     else
         return FALSE;
@@ -315,20 +322,19 @@ boolean is_string(char* string)
         string++;
     }
 
-    if (*string != '"') /* a string must end with " */
+    if (*string != '"') /* A string must end with " */
         return FALSE;
 
     string++;
-    if (*string != '\0') /* string token must end after the ending " */
+    if (*string != '\0') /* String token must end after the ending " */
         return FALSE;
 
-    return TRUE;
+    return TRUE; /* It's a string! */
 }
 
-
 /* This function encodes a given string to data */
-void write_string_to_data(char* str)
-{
+void write_string_to_data(char* str) {
+
     while (!end_of_line(str))
     {
         data[dc++] = (unsigned int)*str; /* Inserting a character to data array */
@@ -337,20 +343,17 @@ void write_string_to_data(char* str)
     data[dc++] = '\0'; /* Insert a null character to data */
 }
 
-
-/*********functions for word**********/
 /* This function inserts a given word to instructions memory */
-void encode_to_instructions(unsigned int word)
-{
+void encode_to_instructions(unsigned int word) {
+
     instructions[ic++] = word;
 }
 
-
-
 /***************ERRORS****************/
 
-/*Checks what error was encoutered and prints the error and line number*/
+/* Checks what error was encoutered and prints the error and line number */
 void write_error(int line_number) {
+  
     fprintf(stderr, "ERROR (line %d): ", line_number);
 
     switch (error)
@@ -459,11 +462,7 @@ void write_error(int line_number) {
         fprintf(stderr, "command can't have more than 2 operands.\n");
 
         break;
-        /*
-            case COMMAND_INVALID_METHODS:
-                fprintf(stderr, "operand has invalid addressing method.\n");
-                break;
-        */
+
     case COMMAND_INVALID_NUMBER_OF_OPERANDS:
         fprintf(stderr, "number of operands does not match command requirements.\n");
 
@@ -491,8 +490,7 @@ void write_error(int line_number) {
 
     case CANNOT_OPEN_FILE:
         fprintf(stderr, "there was an error while trying to open the requested file.\n");
-    }
 
-    /*INVALID_SYNTAX*/ /*in case the line does not starts with alpha or .*/
-    /*INVALID_LABEL_LINE*/ /*in case there is only a label in a line*/
+        break;
+    }
 }
