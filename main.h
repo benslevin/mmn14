@@ -28,7 +28,7 @@
 
 /****************************Limits*******************************/
 
-#define REG_LEN 3
+#define REG_LEN 2
 #define MIN_REGISTER_NUM 0
 #define MAX_REGISTER_NUM 7
 
@@ -42,10 +42,10 @@
 #define SRC_METHOD_BITS 2
 #define OPCODE_BITS 6
 
-#define SRC_METHOD_START_POS 17
-#define SRC_METHOD_END_POS 16
-#define DEST_METHOD_START_POS 12
-#define DEST_METHOD_END_POS 11
+#define SRC_METHOD_START_POS 16
+#define SRC_METHOD_END_POS 17
+#define DEST_METHOD_START_POS 11
+#define DEST_METHOD_END_POS 12
 
 /*******************Enums**********************/
 
@@ -55,10 +55,6 @@ enum guidance { DATA, STRING, ENTRY, EXTERN, UNKNOWN_TYPE };
 /* Enum of commands ordered by their opcode */
 enum commands { MOV, CMP, ADD, SUB, LEA, CLR, NOT, INC, DEC, JMP, BNE, JSR, RED, PRN, RTS, STOP, UNKNOWN_COMMAND };
 
-/*
-/* Enum of commands funct 
-enum commands_funct { ADD, SUB, CLR, NOT, INC, DEC, JMP, BNE, JSR, UNKNOWN_FUNCT = 10 };
-*/
 /* Enum of file types to create */
 enum filetype { FILE_INPUT, FILE_OBJECT, FILE_ENTRY, FILE_EXTERN };
 
