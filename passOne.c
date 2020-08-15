@@ -3,13 +3,13 @@
 #include "passFunctions.h"
 #include "common.h"
 
+/* This file is the first pass of the program */
 
+/* Starting pass one */
+void passOne(FILE* fp) {
 
-
-void passOne(FILE* fp)
-{
-    char line[MAX_INPUT]; /*This char array contains the current line we are handling*/
-    int line_number = 1;/*line number starts from 1*/
+    char line[MAX_INPUT]; /* This char array contains the current line we are handling */
+    int line_number = 1;/* Line number starts from 1 */
 
     /* Initializing data and instructions counter */
     ic = 0;
@@ -22,77 +22,72 @@ void passOne(FILE* fp)
             line_pass_one(line);
         if (if_error()) {
             error_exist = TRUE; /* There was at least one error through all the program */
-            write_error(line_number); /* Output the error */
+            write_error(line_number); /* Print the error */
         }
         line_number++;
     }
-    /*not sure why we need the following, leaving it here ate the moment*/
-
-    /* When the first pass ends and the symbols table is complete and IC is evaluated,
-    we can calculate real final addresses */
-
-    offset_address(symbols_table, DEFAULT_IC, FALSE);  /*Instruction symbols will have addresses that start from 100 (MEMORY_START)*/
-    offset_address(symbols_table, ic + DEFAULT_IC, TRUE); /* Data symbols will have addresses that start fron NENORY_START + IC*/
+    /* Calculates the correct address after the symbol table is completed */
+    offset_address(symbols_table, DEFAULT_IC, FALSE); /* Instruction symbols will have addresses that start from 100 (MEMORY_START) */
+    offset_address(symbols_table, ic + DEFAULT_IC, TRUE); /* Data symbols will have addresses that start fron MEMORY_START + IC */
 }
 
+/* The function that reads each line and checks it */
+void  line_pass_one(char* line) {
 
-void  line_pass_one(char* line)
-{
-
-    /* Initializing variables for the type of the directive/command */
+    /* Initializing variables for the type of the guidance/command */
     int guidance_type = UNKNOWN_TYPE;
     int command_type = UNKNOWN_COMMAND;
     boolean label = FALSE; /* This variable will hold TRUE if a label exists in this line */
     labelPtr label_node = NULL; /* This variable holds optional label in case we need to create it */
     char current_sign[MAX_INPUT]; /* This string will hold the current sign if we analyze it */
 
+    /* Beginning to parse a line */
+    line = skip_spaces(line);/* Skip all spaces */
+    if (end_of_line(line)) return;/* Starts next row in case the row is empty */
 
-    /*Beginning to cross a line*/
-    line = skip_spaces(line);/*skip all spaces*/
-    if (end_of_line(line)) return;/*starts next row in case the row is empty*/
-
-    if ((isalpha(*line) == 0) && *line != '.') { /* first non-blank character must be a letter or a dot */
+    if ((isalpha(*line) == 0) && *line != '.') { /* First non-blank character must be a letter or a dot */
         error = INVALID_SYNTAX;
         return;
     }
-    copy_sign(current_sign, line); /*taking the label and copy it*/
+    copy_sign(current_sign, line); /* Taking the label and copy it */
 
-    if (is_label(current_sign, COLON))/*test if the first word is a label*/
+    if (is_label(current_sign, COLON))/* Test if the first word is a label */
     {
         label = TRUE;
-        label_node = add_label(&symbols_table, current_sign, 100, FALSE, FALSE);/*Adding a new label to the Symbol table*/
-        if (label_node == NULL)/*in case we didnt succeed to add the label*/
+        label_node = add_label(&symbols_table, current_sign, 100, FALSE, FALSE);/* Adding a new label to the Symbol table */
+        if (label_node == NULL)/* In case we didnt succeed to add the label */
             return;
-        line = next_sign(line);/*Getting the next sign*/
+        line = next_sign(line);/* Getting the next sign */
         if (end_of_line(line))
         {
-            error = INVALID_LABEL_LINE;/* only label exists in line*/
+            error = INVALID_LABEL_LINE;/* Only label exists in line */
             return;
         }
-        copy_sign(current_sign, line);/*after we get the next the next word or symbol we continue with the proccess*/
+        copy_sign(current_sign, line);/* After we get the next the next word or symbol we continue with the proccess */
     }
 
-    if (if_error()) {}/*in case the first pass for label search returns an error*/
+    if (if_error()) {}/* In case the first pass for label search returns an error */
 
-    if ((guidance_type = find_guidance(current_sign)) != NO_MATCH) /*in case the sign is a guidance*/
+    if ((guidance_type = find_guidance(current_sign)) != NO_MATCH) /* In case the sign is a guidance */
     {
         if (label != 0)
         {
-            if (guidance_type == ENTRY || guidance_type == EXTERN) {
+            if (guidance_type == ENTRY || guidance_type == EXTERN) { /* If the guidance is extern or entry, delet it from label table */
                 delete_label(&symbols_table, label_node->name);
                 label = FALSE;
             }
-            else
+            else {
                 /* Setting fields accordingly in label */
                 strcpy(label_node->symbol_type, "data");
+            }
             label_node->address = dc; /* Address of data label is dc */
 
         }
         line = next_sign(line);
-        handle_guidance(guidance_type, line);
+        handle_guidance(guidance_type, line); /* The function to handle all types of guidances */
     }
 
-    else if ((command_type = find_command(current_sign)) != NO_MATCH) /* in case the sign is a command */
+    else if ((command_type = find_command(current_sign)) != NO_MATCH) /* In case the sign is a command */
     {
         if (label != 0)
         {
@@ -102,22 +97,17 @@ void  line_pass_one(char* line)
             label_node->address = ic;/* Address of data label is ic */
         }
         line = next_sign(line);
-        handle_command(command_type, line);
+        handle_command(command_type, line);/* The function to handle all types of commands */
 
     }
     else
-        error = MISSING_SYNTAX;/*In case a line does not have a command or a guidance */
+        error = MISSING_SYNTAX;/* In case a line does not have a command or a guidance */
 }
 
+/* This function handles guidances (.data, .string, .entry, .extern) and sends them to the correct functions for analizing */
+int handle_guidance(int guidance_type, char* line) {
 
-
-
-/* This function handles all kinds of guidance (.data, .string, .entry, .extern)
- * and sends them accordingly to the suitable function for analyzing them
- * */
-int handle_guidance(int guidance_type, char* line)
-{
-    if (line == NULL || end_of_line(line)) /*at least one parameter must fllow a guidance*/
+    if (line == NULL || end_of_line(line)) /* At least one parameter must fllow a guidance */
     {
         error = NO_PARAMETER_AVAILABLE;
         return ERROR;
@@ -130,12 +120,12 @@ int handle_guidance(int guidance_type, char* line)
         return handle_data_guidance(line);
 
     case STRING:
-        /* Handle .string directive and insert all characters (including a '\0') to memory */
+        /* Handle .string guidance and insert all characters (including a '\0') to memory */
         return handle_string_guidance(line);
 
     case ENTRY:
         /* Only check for syntax of entry (should not contain more than one parameter) */
-        if (!end_of_line(next_sign(line))) /* If there's a next token (after the first one) */
+        if (!end_of_line(next_sign(line))) /* If there's a next sign (after the first one) */
         {
             error = GUIDANCE_INVALID_NUM_PARAMS;
             return ERROR;
@@ -143,29 +133,29 @@ int handle_guidance(int guidance_type, char* line)
         break;
 
     case EXTERN:
-        /* Handle .extern directive */
+        /* Handle .extern guidance */
         return handle_extern_guidance(line);
     }
     return EMPTY_ERROR;
 }
 
-
+/* This function handels .data guidance and encodes it to data */
 int handle_data_guidance(char* line)
 {
-    char sign[NUM]; /* Holds tokens */
+    char sign[NUM]; /* Holds sign */
 
-    /*Flags to verify that there is a seperation between the diffrent numbers using a comma*/
+    /* Flags to verify that there is a seperation between the diffrent numbers using a comma */
     boolean number = FALSE;
     boolean comma = FALSE;
 
-    while (!end_of_line(line))
+    while (!end_of_line(line)) /* checks if end of line */
     {
         line = next_list_sign(sign, line); /* Getting current sign */
 
         if (strlen(sign) > 0) /* Not an empty sign */
         {
-            if (number == FALSE) { /* if there wasn't a number before */
-                if (is_number(sign) == FALSE) { /* then the sign must be a number */
+            if (number == FALSE) { /* If there wasn't a number before */
+                if (is_number(sign) == FALSE) { /* Then the sign must be a number */
                     error = DATA_EXPECTED_NUM;
                     return ERROR;
                 }
@@ -205,14 +195,13 @@ int handle_data_guidance(char* line)
     return EMPTY_ERROR;
 }
 
-
-/* This function handles a .string directive by analyzing it and encoding it to data */
+/* This function handles a .string guidance and encoding it to data */
 int handle_string_guidance(char* line)
 {
     char sign[MAX_INPUT];
 
     line = next_sign_string(sign, line);
-    if (!end_of_line(sign) && is_string(sign)) { /* If token exists and it's a valid string */
+    if (!end_of_line(sign) && is_string(sign)) { /* If sign exists and it's a valid string */
         line = skip_spaces(line);
         if (end_of_line(line)) /* If there's no additional sign */
         {
@@ -239,8 +228,8 @@ int handle_string_guidance(char* line)
 }
 
 /* This function handles an .extern guidance */
-int handle_extern_guidance(char* line)
-{
+int handle_extern_guidance(char* line) {
+
     char sign[MAX_LABEL]; /* This will hold the required label */
 
     copy_sign(sign, line); /* Getting the next sign */
@@ -269,17 +258,14 @@ int handle_extern_guidance(char* line)
     return if_error(); /* Error code might be 1 if there was an error in is_label() */
 }
 
-/*------------------------------------------------------------------------------------------------*/
+/* This function handels commands and encodes to words */
+int handle_command(int type, char* line) {
 
-int handle_command(int type, char* line)
-{
     boolean is_first = FALSE;
     boolean is_second = FALSE; /* These booleans will tell which of the operands were received (not by source/dest, but by order) */
     int first_method = 0, second_method = 0; /* These will hold the addressing methods of the operands */
     char first_operand[20], second_operand[20]; /* These strings will hold the operands */
-
-    int first_register = 0;
-    int second_register = 0;
+    int first_register = 0, second_register = 0; /* These will hold the register numbers */
 
     /* Trying to parse 2 operands */
     line = next_list_sign(first_operand, line);
@@ -318,12 +304,12 @@ int handle_command(int type, char* line)
     if ((is_first == TRUE)) {
         first_method = detect_method(first_operand); /* Detect addressing method of first operand */
         if ((first_method == METHOD_REGISTER))
-            first_register = find_reg_number(first_operand);
+            first_register = find_reg_number(first_operand); /* Finds the register number */
     }
     if ((is_second == TRUE)) {
         second_method = detect_method(second_operand); /* Detect addressing method of second operand */
         if ((second_method == METHOD_REGISTER))
-            second_register = find_reg_number(second_operand);
+            second_register = find_reg_number(second_operand); /* Finds the register number */
     }
 
     if (!if_error()) /* If there was no error while trying to parse addressing methods */
@@ -332,7 +318,7 @@ int handle_command(int type, char* line)
         {
             if (command_accept_methods(type, first_method, second_method)) /* If addressing methods are valid for this specific command */
             {
-                /* encode first word of the command to memory and increase ic by the number of additional words */
+                /* Encode first word of the command to memory and increase ic by the number of additional words */
                 encode_to_instructions(build_first_word(type, is_first, is_second, first_method, second_method, first_register, second_register));
                 ic += calculate_command_num_additional_words(is_first, is_second, first_method, second_method);
             }
@@ -354,16 +340,16 @@ int handle_command(int type, char* line)
     return EMPTY_ERROR;
 }
 
-void write_num_to_data(int num)
-{
+/* This function inserts .data to data memory */
+void write_num_to_data(int num) {
+
     data[dc++] = (unsigned int)num;
 }
 
 /* This function tries to find the addressing method of a given operand and returns -1 if it was not found */
-int detect_method(char* operand)
-{
+int detect_method(char* operand) {
 
-    if (end_of_line(operand))
+    if (end_of_line(operand)) /* If end of line*/
         return NO_MATCH;
 
     /*----- Immediate addressing method check -----*/
@@ -394,11 +380,11 @@ int detect_method(char* operand)
 }
 
 /* This function checks for the validity of given methods according to the opcode */
-boolean command_accept_num_operands(int type, boolean first, boolean second)
-{
+boolean command_accept_num_operands(int type, boolean first, boolean second) {
+
     switch (type)
     {
-        /* These opcodes must receive 2 operands */
+    /* These opcodes must receive 2 operands */
     case MOV:
     case CMP:
     case ADD:
@@ -406,7 +392,7 @@ boolean command_accept_num_operands(int type, boolean first, boolean second)
     case LEA:
         return first && second;
 
-        /* These opcodes must only receive 1 operand */
+    /* These opcodes must only receive 1 operand */
     case NOT:
     case CLR:
     case INC:
@@ -418,7 +404,7 @@ boolean command_accept_num_operands(int type, boolean first, boolean second)
     case JSR:
         return first && !second;
 
-        /* These opcodes can't have any operand */
+    /* These opcodes can't have any operand */
     case RTS:
     case STOP:
         return !first && !second;
@@ -427,8 +413,8 @@ boolean command_accept_num_operands(int type, boolean first, boolean second)
 }
 
 /* This function checks for the validity of given addressing methods according to the opcode */
-boolean command_accept_methods(int type, int first_method, int second_method)
-{
+boolean command_accept_methods(int type, int first_method, int second_method) {
+
     switch (type)
     {
         /* These opcodes only accept
@@ -495,13 +481,13 @@ boolean command_accept_methods(int type, int first_method, int second_method)
 }
 
 /* This function encodes the first word of the command */
-unsigned int build_first_word(int type, int is_first, int is_second, int first_method, int second_method, int first_register, int second_register)
-{
+unsigned int build_first_word(int type, int is_first, int is_second, int first_method, int second_method, int first_register, int second_register) {
+
     unsigned int word = 0;
-    int funct = 0;
+    int funct = 0; 
     int newType = 0;
-    newType = find_new_type(type);
-    funct = command_funct(type);
+    newType = find_new_type(type); /* Finds the correct opcode to enter */
+    funct = command_funct(type); /* Finds the correct funct val to enter */
 
     /* Inserting the opcode */
     word |= newType;
@@ -521,42 +507,42 @@ unsigned int build_first_word(int type, int is_first, int is_second, int first_m
         }
     }
 
-    word <<= DEST_METHOD_BITS;
+    word <<= DEST_METHOD_BITS; /* Leave space for second method bits */
 
-    /* If there are two operands, insert the second. */
+    /* If there are two operands, insert the second */
     if (is_first && is_second) {
         word |= second_method;
     }
-    /* If not, insert the first one (a single operand is a destination operand). */
+    /* If not, insert the first one (a single operand is a destination operand) */
     else if (is_first) {
         word |= first_method;
     }
 
-    word <<= DEST_REG_BITS;
+    word <<= DEST_REG_BITS; /* Leave space for register bits */
 
     if (is_first && is_second) {
         if (second_method == METHOD_REGISTER)
             word |= second_register; /*insert destination register number*/
-    }
+    }/* If not, insert the first one (a single operand is a destination operand)*/
     else if (is_first) {
         word |= first_register;
     }
 
     word <<= FUNCT_BITS; /*Leave space for function bits*/
 
-    if (funct != UNKNOWN_FUNCT)
+    if (funct != UNKNOWN_FUNCT) /* Make sure we don't enter a incorrect number */
         word |= funct;
 
     word <<= ARE_BITS; /*Leave space for ARE bits*/
 
-    word |= ABSOLUTE;
+    word |= ABSOLUTE; /* First word is always ABSOLUTE */
 
     return word;
 }
 
 /* This function calculates number of additional words for a command */
-int calculate_command_num_additional_words(int is_first, int is_second, int first_method, int second_method)
-{
+int calculate_command_num_additional_words(int is_first, int is_second, int first_method, int second_method) {
+
     int count = 0;
     if (is_first) 
         count += num_words(first_method);
@@ -567,43 +553,50 @@ int calculate_command_num_additional_words(int is_first, int is_second, int firs
 }
 
 /* This function returns how many additional words an addressing method requires */
-int num_words(int method)
-{
+int num_words(int method) {
+
     if ((method == METHOD_IMMEDIATE) || (method == METHOD_DIRECT) || (method == METHOD_RELATIVE))
         return 1;
-    else /*in case the methid is REGISTER*/
+    else /*in case the method is REGISTER, we coded it in the firs word */
         return 0;
 }
 
+/* Finds the function number to insert in word */
 int command_funct(int commands) {
 
     switch (commands)
     {
+    /* These commands have a funct val of 1 */
     case ADD:
     case CLR:
     case JMP:
         return 1;
         break;
 
+    /* These commands have a funct val of 2 */
     case SUB:
     case NOT:
     case BNE:
         return 2;
         break;
 
+    /* These commands have a funct val of 3 */
     case INC:
     case JSR:
         return 3;
         break;
 
+    /* These commands have a funct val of 4 */
     case DEC:
         return 4;
         break;
-
+    
+    /* The rest have no funct val, and we insert 0 */
     }
     return UNKNOWN_FUNCT;
 }
 
+ /* Finds the real number of the opcode to insert in word */
 int find_new_type(int type) {
     
     switch (type)
