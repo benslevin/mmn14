@@ -21,15 +21,14 @@ void passTwo(FILE* fp, char* filename) {
 			write_error(line_number); /* Print the error */
 		}
 		line_number++;
-
-		if (!error_exist) { /* No errors found int the file */
-			creat_output_files(filename); /* creating files */
-		}
-
-		/*Free memory of linked list/tabels*/
-		free_label_table(&symbols_table);
-		free_ext(&ext_list);
 	}
+
+	if (!error_exist) { /* No errors found int the file */
+			creat_output_files(filename); /* creating files */
+	}
+	/*Free memory of linked list/tabels*/
+	free_label_table(&symbols_table);
+	free_ext(&ext_list);
 }
 
 /* The function that reads each line and checks it */
@@ -91,7 +90,7 @@ FILE* open_file(char* filename, int type) {
 	filename = create_file_name(filename, type); /* Creating filename with extension */
 
 	file = fopen(filename, "w"); /* Opening file with permissions */
-	free(filename); /* Allocated modified filename is no longer needed */
+	//free(filename); /* Allocated modified filename is no longer needed */
 
 	if (file == NULL)
 	{
@@ -108,14 +107,14 @@ void creat_object_file(FILE* fp) {
 	int param1 = ic, param2 = dc;
 	unsigned int param3, param4, param5, param6;
 
-	fprintf(fp, "%d \t %d\n\n", param1, param2); /* First line */
+	fprintf(fp, "\t %d \t %d\n\n", param1, param2); /* First line */
 
 	for (i = 0; i < ic; address++, i++) /* Instructions memory */
 	{
 		param3 = address;
 		param4 = instructions[i];
 
-		fprintf(fp, "%07d \t %X\n", param3, param4);
+		fprintf(fp, "%07d \t %06X\n", param3, param4);
 
 	}
 
@@ -124,7 +123,7 @@ void creat_object_file(FILE* fp) {
 		param5 = address;
 		param6 = data[i];
 
-		fprintf(fp, "%07d \t %X\n", param5, param6);
+		fprintf(fp, "%07d \t %06X\n", param5, param6);
 
 	}
 
@@ -144,8 +143,8 @@ void creat_entry_file(FILE* fp) {
 		{
 			param1 = label->name;
 			param2 = label->address;
-			fprintf(fp, "%s \t %X\n", param1, param2);
-			free(param1);
+			fprintf(fp, "%s \t %07d\n", param1, param2);
+			//free(param1);
 		}
 		label = label->next;
 	}
@@ -163,8 +162,8 @@ void creat_external_file(FILE* fp) {
 	{
 		param1 = node->name;
 		param2 = node->address;
-		fprintf(fp, "%s \t %X\n", param1, param2); /* Printing to file */
-		free(param1);
+		fprintf(fp, "%s \t %07d\n", param1, param2); /* Printing to file */
+		//free(param1);
 		node = node->next;
 	} while (node != ext_list);
 	fclose(fp);
@@ -178,8 +177,8 @@ void does_operand_exists(int ope, boolean* is_source, boolean* is_destination) {
 	case ADD:
 	case SUB:
 	case LEA:
-		is_source = TRUE;
-		is_destination = TRUE;
+		*is_source = TRUE;
+		*is_destination = TRUE;
 		break;
 
 	case CLR:
@@ -191,14 +190,14 @@ void does_operand_exists(int ope, boolean* is_source, boolean* is_destination) {
 	case JSR:
 	case RED:
 	case PRN:
-		is_source = FALSE;
-		is_destination = TRUE;
+		*is_source = FALSE;
+		*is_destination = TRUE;
 		break;
 
 	case RTS:
 	case STOP:
-		is_source = FALSE;
-		is_destination = FALSE;
+		*is_source = FALSE;
+		*is_destination = FALSE;
 	}
 
 }
@@ -266,10 +265,10 @@ void encode_label(char* label)
 			word = 0;/*making sure that the word is zero, and sets the External bit*/
 			word = EXTERNAL;
 		}
-		else
+		else {
 			word <<= ARE_BITS;
-		
-		word |= RELOCATABLE; /* If it's not an external label, then it's relocatable */
+			word |= RELOCATABLE; /* If it's not an external label, then it's relocatable */
+		}
 
 		encode_to_instructions(word); /* Encode word to memory */
 	}
@@ -287,7 +286,9 @@ void encode_label_relative(char* label) {
 	if (label[0] == '&') {
 		label++;
 		if (is_existing_label(symbols_table, label) && !is_external_label(symbols_table, label)) {/* If label exists, and not external */
-			word = (ic - get_label_address(symbols_table, label)); /* Getting label's address, and calculating the distance to label */
+			word = (get_label_address(symbols_table, label) - (ic + DEFAULT_IC) + 1); /* Getting label's address, and calculating the distance to label */
+			word <<= ARE_BITS;
+			word |= ABSOLUTE;
 		}
 		encode_to_instructions(word); /* Encode word to memory */
 	}
@@ -299,12 +300,30 @@ void encode_label_relative(char* label) {
 
 }
 
+void encode_num_immediate(char* operand) {
+	unsigned int word = 0; /* An empty word */
+	unsigned int temp;
+
+	temp = (unsigned int)atoi(operand + 1);
+	word |= temp;
+
+	word <<= ARE_BITS;
+
+	word |= ABSOLUTE;
+
+	encode_to_instructions(word); /* Encode word to memory */
+}
+
 /* This function encodes an additional word to instructions memory, given the addressing method */
 void encode_additional_word(boolean is_dest, int method, char* operand)
 {
 
 	switch (method)
 	{
+	case METHOD_IMMEDIATE:
+		encode_num_immediate(operand);
+		break;
+
 	case METHOD_DIRECT:
 		encode_label(operand);
 		break;
