@@ -90,16 +90,16 @@ int make_entry(labelPtr l, char* name) {
 
 unsigned int get_label_address(labelPtr l, char* name) {
 	labelPtr label = get_label(l, name);
-	if (get_label != NULL) {
-		return (l->address);
+	if (label != NULL) {
+		return (label->address);
 	}
 	else return FALSE;
 }
 
 boolean is_external_label(labelPtr l, char* name) {
 	labelPtr label = get_label(l, name);
-	if (get_label != NULL) {
-		return (l->external);
+	if (label != NULL) {
+		return (label->external);
 	}
 	else return FALSE;
 }
