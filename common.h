@@ -15,6 +15,7 @@ char* skip_spaces(char* ch);
 int end_of_line(char* line);
 void copy_sign(char* destination, char* line);
 unsigned int extract_bits(unsigned int word, int start, int end);
+unsigned int degrade_to_24_bits(unsigned int word);
 boolean is_label(char* sign, int colon);
 char* next_sign(char* seq);
 boolean is_register(char* sign);
