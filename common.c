@@ -106,6 +106,17 @@ unsigned int extract_bits(unsigned int word, int start, int end) {
     return result;
 }
 
+/* This functions degrades the 32 bit word incase it has 1'ns as MSB to a 24 bit word for correct output */
+unsigned int degrade_to_24_bits(unsigned int word) {
+    
+    unsigned int newWord;
+    int mask = (int)pow(2, 24) - 1; /*Creating a mask of 24 bits so the first 8 bits are 0*/
+
+    newWord = word & mask;
+    return newWord;
+}
+
+
 /* This function checks if a sign is a label or not */
 boolean is_label(char* sign, int colon) {
 
