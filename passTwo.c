@@ -115,7 +115,7 @@ void creat_object_file(FILE* fp) {
 	for (i = 0; i < ic; address++, i++) /* Instructions memory */
 	{
 		param3 = address;
-		param4 = instructions[i];
+		param4 = degrade_to_24_bits(instructions[i]);
 
 		fprintf(fp, "%.7d \t %.6x\n", param3, param4);
 
@@ -124,7 +124,7 @@ void creat_object_file(FILE* fp) {
 	for (i = 0; i < dc; address++, i++) /* Data memory */
 	{
 		param5 = address;
-		param6 = data[i];
+		param6 = degrade_to_24_bits(data[i]);
 
 		fprintf(fp, "%.7d \t %.6x\n", param5, param6);
 
