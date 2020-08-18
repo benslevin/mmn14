@@ -489,7 +489,7 @@ boolean command_accept_methods(int type, int first_method, int second_method) {
 /* This function encodes the first word of the command */
 unsigned int build_first_word(int type, int is_first, int is_second, int first_method, int second_method, int first_register, int second_register) {
 
-    unsigned int word = 0;
+    unsigned int word = 0; /* We decalred it as an unsigned int after we discussed it with Judy, the output is printed as 24 bits words */
     int funct = 0; 
     int newType = 0;
     newType = find_new_type(type); /* Finds the correct opcode to enter */
