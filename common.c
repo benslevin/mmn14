@@ -219,13 +219,14 @@ int find_reg_number(char* sign) {
     if (strlen(sign) == REG_LEN && sign[0] == 'r')
     {
         int number = atoi(++sign); /* Changes the ascii value to int */
-        for (i = MIN_REGISTER_NUM; i <= MAX_REGISTER_NUM; i++)
-            if (number == i)
+        for (i = MIN_REGISTER_NUM; i <= MAX_REGISTER_NUM; i++) {
+            if (number == i) {
                 return number;
+            }
+            else return 0;
+        }
     }
-    else {
-        return 0;
-    }
+    return 0;
 }
 
 /* This function finds an index of a string in an array of strings */
